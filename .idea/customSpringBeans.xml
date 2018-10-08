@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CustomBeanRegistry">
+    <option name="map">
+      <map>
+        <entry key="&lt;dubbo:annotation xmlns:dubbo=&quot;http://code.alibabatech.com/schema/dubbo&quot; package=&quot;com.pinyougou.manager.controller&quot; /&gt;">
+          <value>
+            <list>
+              <CustomBeanInfo>
+                <option name="beanName" value="com.alibaba.dubbo.config.spring.AnnotationBean" />
+                <option name="beanClassName" value="com.alibaba.dubbo.config.spring.AnnotationBean" />
+              </CustomBeanInfo>
+            </list>
+          </value>
+        </entry>
+        <entry key="&lt;dubbo:annotation xmlns:dubbo=&quot;http://code.alibabatech.com/schema/dubbo&quot; package=&quot;com.pinyougou.sellergoods.service.impl&quot; /&gt;">
+          <value>
+            <list>
+              <CustomBeanInfo>
+                <option name="beanName" value="com.alibaba.dubbo.config.spring.AnnotationBean" />
+                <option name="beanClassName" value="com.alibaba.dubbo.config.spring.AnnotationBean" />
+              </CustomBeanInfo>
+            </list>
+          </value>
+        </entry>
+        <entry key="&lt;dubbo:annotation xmlns:dubbo=&quot;http://code.alibabatech.com/schema/dubbo&quot; package=&quot;com.pinyougou.shop.controller&quot; /&gt;">
+          <value>
+            <list>
+              <CustomBeanInfo>
+                <option name="beanName" value="com.alibaba.dubbo.config.spring.AnnotationBean" />
+                <option name="beanClassName" value="com.alibaba.dubbo.config.spring.AnnotationBean" />
+              </CustomBeanInfo>
+            </list>
+          </value>
+        </entry>
+        <entry key="&lt;dubbo:application xmlns:dubbo=&quot;http://code.alibabatech.com/schema/dubbo&quot; name=&quot;pinyougou-manager-web&quot; /&gt;">
+          <value>
+            <list>
+              <CustomBeanInfo>
+                <option name="beanName" value="pinyougou-manager-web" />
+                <option name="beanClassName" value="com.alibaba.dubbo.config.ApplicationConfig" />
+                <option name="idAttribute" value="name" />
+              </CustomBeanInfo>
+            </list>
+          </value>
+        </entry>
+        <entry key="&lt;dubbo:application xmlns:dubbo=&quot;http://code.alibabatech.com/schema/dubbo&quot; name=&quot;pinyougou-sellergoods-service&quot; /&gt;">
+          <value>
+            <list>
+              <CustomBeanInfo>
+                <option name="beanName" value="pinyougou-sellergoods-service" />
+                <option name="beanClassName" value="com.alibaba.dubbo.config.ApplicationConfig" />
+                <option name="idAttribute" value="name" />
+              </CustomBeanInfo>
+            </list>
+          </value>
+        </entry>
+        <entry key="&lt;dubbo:application xmlns:dubbo=&quot;http://code.alibabatech.com/schema/dubbo&quot; name=&quot;pinyougou-shop-web&quot; /&gt;">
+          <value>
+            <list>
+              <CustomBeanInfo>
+                <option name="beanName" value="pinyougou-shop-web" />
+                <option name="beanClassName" value="com.alibaba.dubbo.config.ApplicationConfig" />
+                <option name="idAttribute" value="name" />
+              </CustomBeanInfo>
+            </list>
+          </value>
+        </entry>
+        <entry key="&lt;dubbo:protocol xmlns:dubbo=&quot;http://code.alibabatech.com/schema/dubbo&quot; name=&quot;dubbo&quot; port=&quot;20881&quot; /&gt;">
+          <value>
+            <list>
+              <CustomBeanInfo>
+                <option name="beanName" value="dubbo" />
+                <option name="beanClassName" value="com.alibaba.dubbo.config.ProtocolConfig" />
+                <option name="idAttribute" value="name" />
+              </CustomBeanInfo>
+            </list>
+          </value>
+        </entry>
+        <entry key="&lt;dubbo:registry xmlns:dubbo=&quot;http://code.alibabatech.com/schema/dubbo&quot; address=&quot;zookeeper://192.168.25.128:2181&quot; /&gt;">
+          <value>
+            <list>
+              <CustomBeanInfo>
+                <option name="beanName" value="com.alibaba.dubbo.config.RegistryConfig" />
+                <option name="beanClassName" value="com.alibaba.dubbo.config.RegistryConfig" />
+              </CustomBeanInfo>
+            </list>
+          </value>
+        </entry>
+        <entry key="&lt;dubbo:registry xmlns:dubbo=&quot;http://code.alibabatech.com/schema/dubbo&quot; address=&quot;zookeeper://192.168.25.129:2181&quot; /&gt;">
+          <value>
+            <list>
+              <CustomBeanInfo>
+                <option name="beanName" value="com.alibaba.dubbo.config.RegistryConfig" />
+                <option name="beanClassName" value="com.alibaba.dubbo.config.RegistryConfig" />
+              </CustomBeanInfo>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
