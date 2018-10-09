@@ -26,14 +26,15 @@
                     $scope.reloadPage();
                 }
             };
-            $scope.findPage = function (page, size) {
-                $http.get("../brand/findPage.do?page=" + page + "&size=" + size).success(function (data) {
+            $scope.searchBrand = {};
+            $scope.findPage = function (searchBrand,page, size) {
+                $http.post("../brand/search.do?page=" + page + "&size=" + size,searchBrand).success(function (data) {
                     $scope.brands = data.rows;
                     $scope.paginationConf.totalItems = data.total;
                 })
             };
             $scope.reloadPage = function () {
-                $scope.findPage($scope.paginationConf.currentPage, $scope.paginationConf.itemsPerPage);
+                $scope.findPage($scope.searchBrand,$scope.paginationConf.currentPage, $scope.paginationConf.itemsPerPage);
                 $scope.delArr = [];
             };
             //新增或修改品牌
@@ -74,9 +75,8 @@
                     }
                     $scope.delArr = [];
                 })
-            }
+            };
         })
-
     </script>
 </head>
 <body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="brand_controller">
@@ -103,9 +103,11 @@
                 </div>
             </div>
         </div>
+        <!--条件查询-->
         <div class="box-tools pull-right">
             <div class="has-feedback">
-
+                品牌:<input type="text" ng-model="searchBrand.name">&nbsp;&nbsp;&nbsp;首字母:<input type="text" ng-model="searchBrand.firstChar">
+                <button type="button" class="btn btn-default" title="查询" ng-click="reloadPage()"><i class="fa fa-trash-o"></i> 查询</button>
             </div>
         </div>
         <!--工具栏/-->

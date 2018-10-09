@@ -18,4 +18,6 @@ public interface BrandService {
     public void update(TbBrand tbBrand);
 
     public void delete(Long[] lids);
+
+    public PageResult<TbBrand> search(TbBrand tbBrand,int pageNum, int pageSize);
 }

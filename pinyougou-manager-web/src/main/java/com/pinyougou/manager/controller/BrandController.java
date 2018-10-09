@@ -74,4 +74,9 @@ public class BrandController {
         }
         return dmlResult;
     }
+
+    @RequestMapping("/search")
+    public PageResult<TbBrand> search(@RequestBody TbBrand tbBrand,Integer page,Integer size){
+        return brandService.search(tbBrand,page,size);
+    }
 }

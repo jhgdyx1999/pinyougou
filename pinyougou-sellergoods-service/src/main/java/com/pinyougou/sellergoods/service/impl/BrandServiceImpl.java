@@ -9,6 +9,7 @@ import com.pinyougou.pojo.TbBrand;
 import com.pinyougou.pojo.TbBrandExample;
 import com.pinyougou.sellergoods.service.BrandService;
 import org.apache.zookeeper.data.Id;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -51,6 +52,23 @@ public class BrandServiceImpl implements BrandService {
         for (Long id : ids) {
             brandMapper.deleteByPrimaryKey(id);
         }
+    }
+
+    @Override
+    public PageResult<TbBrand> search(TbBrand tbBrand, int pageNum, int pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        TbBrandExample tbBrandExample = new TbBrandExample();
+        if (tbBrand != null){
+            TbBrandExample.Criteria criteria = tbBrandExample.createCriteria();
+            if (!StringUtils.isEmpty(tbBrand.getName())){
+                criteria.andNameLike("%"+tbBrand.getName()+"%");
+            }
+            if (!StringUtils.isEmpty(tbBrand.getFirstChar())){
+                criteria.andFirstCharLike("%"+tbBrand.getFirstChar()+"%");
+            }
+        }
+        Page<TbBrand> tbBrands = (Page<TbBrand>) brandMapper.selectByExample(tbBrandExample);
+        return new PageResult<>(tbBrands.getTotal(), tbBrands.getResult());
     }
 
 }
