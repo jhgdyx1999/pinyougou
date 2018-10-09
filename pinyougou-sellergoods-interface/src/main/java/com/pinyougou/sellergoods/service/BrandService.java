@@ -12,4 +12,10 @@ public interface BrandService {
     public PageResult<TbBrand> findPage(int pageNum, int pageSize);
 
     public void insert(TbBrand tbBrand);
+
+    public TbBrand findOne(Long id);
+
+    public void update(TbBrand tbBrand);
+
+    public void delete(Long[] lids);
 }

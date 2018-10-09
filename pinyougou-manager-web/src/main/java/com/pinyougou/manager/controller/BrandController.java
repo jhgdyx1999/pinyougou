@@ -41,4 +41,37 @@ public class BrandController {
         }
         return dmlResult;
     }
+
+    @RequestMapping("/findOne")
+    public TbBrand findOne(Long id){
+        return brandService.findOne(id);
+    }
+
+    @RequestMapping("/update")
+    public DMLResult update(@RequestBody TbBrand tbBrand){
+        DMLResult dmlResult;
+        try {
+            brandService.update(tbBrand);
+            dmlResult = new DMLResult(true,"修改成功!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            dmlResult = new DMLResult(false,"修改失败!");
+            return dmlResult;
+        }
+        return dmlResult;
+    }
+
+    @RequestMapping("/del")
+    public DMLResult delete(Long[] ids){
+        DMLResult dmlResult;
+        try {
+            brandService.delete(ids);
+            dmlResult = new DMLResult(true,"删除成功!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            dmlResult = new DMLResult(false,"删除失败!");
+            return dmlResult;
+        }
+        return dmlResult;
+    }
 }
