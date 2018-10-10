@@ -11,8 +11,8 @@ app.controller("baseController",function ($scope) {
     };
     //重载数据,清除复选框集合
     $scope.reloadList = function () {
-        $scope.findPage($scope.searchEntity,$scope.paginationConf.currentPage, $scope.paginationConf.itemsPerPage);
-        $scope.delArr = [];
+        $scope.search($scope.paginationConf.currentPage, $scope.paginationConf.itemsPerPage,$scope.searchEntity);
+        $scope.selectIds = [];
     };
     //批量选择
     $scope.selectIds = [];

@@ -1,5 +1,5 @@
  //控制层 
-app.controller('specificationController' ,function($scope,$controller   ,specificationService){	
+app.controller('specificationController' ,function($scope,$controller,$http,specificationService){
 	
 	$controller('baseController',{$scope:$scope});//继承
 	
@@ -10,7 +10,7 @@ app.controller('specificationController' ,function($scope,$controller   ,specifi
 				$scope.list=response;
 			}			
 		);
-	}    
+	};
 	
 	//分页
 	$scope.findPage=function(page,rows){			
@@ -20,7 +20,7 @@ app.controller('specificationController' ,function($scope,$controller   ,specifi
 				$scope.paginationConf.totalItems=response.total;//更新总记录数
 			}			
 		);
-	}
+	};
 	
 	//查询实体 
 	$scope.findOne=function(id){				
@@ -29,12 +29,12 @@ app.controller('specificationController' ,function($scope,$controller   ,specifi
 				$scope.entity= response;					
 			}
 		);				
-	}
+	};
 	
 	//保存 
 	$scope.save=function(){				
 		var serviceObject;//服务层对象  				
-		if($scope.entity.specification.id!=null){//如果有ID
+		if($scope.entity.id!=null){//如果有ID
 			serviceObject=specificationService.update( $scope.entity ); //修改  
 		}else{
 			serviceObject=specificationService.add( $scope.entity  );//增加 
@@ -49,7 +49,7 @@ app.controller('specificationController' ,function($scope,$controller   ,specifi
 				}
 			}		
 		);				
-	}
+	};
 	
 	 
 	//批量删除 
@@ -63,26 +63,26 @@ app.controller('specificationController' ,function($scope,$controller   ,specifi
 				}						
 			}		
 		);				
-	}
+	};
 	
 	$scope.searchEntity={};//定义搜索对象 
 	
 	//搜索
-	$scope.search=function(page,rows){			
-		specificationService.search(page,rows,$scope.searchEntity).success(
+	$scope.search=function(page,rows,searchEntity){
+		specificationService.search(page,rows,searchEntity).success(
 			function(response){
 				$scope.list=response.rows;	
 				$scope.paginationConf.totalItems=response.total;//更新总记录数
 			}			
 		);
-	}
+	};
 	
-	//$scope.entity={specificationOptionList:[]};
+	$scope.entity={specificationOptionList:[]};
 	
 	//增加规格选项行
 	$scope.addTableRow=function(){
-		$scope.entity.specificationOptionList.push({});			
-	}
+		$scope.entity.specificationOptionList.push({});
+	};
 	
 	//删除规格选项行
 	$scope.deleTableRow=function(index){

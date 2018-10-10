@@ -1,6 +1,6 @@
 app.service("brandService",function ($http) {
     //分页条件查询
-    this.findPage = function (searchEntity,page, size) {
+    this.search = function (page, size,searchEntity) {
         return  $http.post("../brand/search.do?page=" + page + "&size=" + size,searchEntity);
     };
     //添加

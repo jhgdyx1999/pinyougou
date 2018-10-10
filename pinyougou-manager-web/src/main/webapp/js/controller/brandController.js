@@ -3,9 +3,9 @@ app.controller("brandController", function ($scope, $http,brandService, $control
     $controller("baseController",{$scope:$scope});
 
     $scope.searchEntity = {};
-    $scope.findPage = function (searchEntity,page, size) {
-        brandService.findPage(searchEntity,page, size).success(function (data) {
-            $scope.brands = data.rows;
+    $scope.search = function (page, size,searchEntity) {
+        brandService.search(page, size,searchEntity).success(function (data) {
+            $scope.list = data.rows;
             $scope.paginationConf.totalItems = data.total;
         })
     };

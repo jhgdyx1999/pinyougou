@@ -67,7 +67,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="brand in brands">
+            <tr ng-repeat="brand in list">
                 <td><input type="checkbox" ng-click="updateSelection($event,brand.id)"></td>
                 <td>{{brand.id}}</td>
                 <td>{{brand.name}}</td>
