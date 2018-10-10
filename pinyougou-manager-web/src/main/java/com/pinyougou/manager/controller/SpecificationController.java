@@ -2,9 +2,9 @@ package com.pinyougou.manager.controller;
 import java.util.List;
 import java.util.Map;
 
+import com.pinyougou.compositeEntity.SpecificationAndSpecificationOption;
 import com.pinyougou.entity.PageResult;
 import com.pinyougou.entity.Result;
-import com.pinyougou.entity.Specification;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,13 +46,12 @@ public class SpecificationController {
 	
 	/**
 	 * 增加
-	 * @param specification
 	 * @return
 	 */
 	@RequestMapping("/add")
-	public Result add(@RequestBody Specification specification){
+	public Result add(@RequestBody SpecificationAndSpecificationOption specificationAndSpecificationOption){
 		try {
-			specificationService.add(specification);
+			specificationService.add(specificationAndSpecificationOption);
 			return new Result(true, "增加成功");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -62,13 +61,12 @@ public class SpecificationController {
 	
 	/**
 	 * 修改
-	 * @param specification
 	 * @return
 	 */
 	@RequestMapping("/update")
-	public Result update(@RequestBody Specification specification){
+	public Result update(@RequestBody SpecificationAndSpecificationOption specificationAndSpecificationOption){
 		try {
-			specificationService.update(specification);
+			specificationService.update(specificationAndSpecificationOption);
 			return new Result(true, "修改成功");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -82,7 +80,7 @@ public class SpecificationController {
 	 * @return
 	 */
 	@RequestMapping("/findOne")
-	public Specification findOne(Long id){
+	public SpecificationAndSpecificationOption findOne(Long id){
 		return specificationService.findOne(id);		
 	}
 	

@@ -34,7 +34,7 @@ app.controller('specificationController' ,function($scope,$controller,$http,spec
 	//保存 
 	$scope.save=function(){				
 		var serviceObject;//服务层对象  				
-		if($scope.entity.id!=null){//如果有ID
+		if($scope.entity.specification.id!=null){//如果有ID
 			serviceObject=specificationService.update( $scope.entity ); //修改  
 		}else{
 			serviceObject=specificationService.add( $scope.entity  );//增加 
@@ -77,7 +77,7 @@ app.controller('specificationController' ,function($scope,$controller,$http,spec
 		);
 	};
 	
-	$scope.entity={specificationOptionList:[]};
+	$scope.entity={specification:{},specificationOptionList:[]};
 	
 	//增加规格选项行
 	$scope.addTableRow=function(){

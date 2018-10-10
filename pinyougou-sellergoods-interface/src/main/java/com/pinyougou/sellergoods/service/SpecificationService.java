@@ -2,8 +2,8 @@ package com.pinyougou.sellergoods.service;
 import java.util.List;
 import java.util.Map;
 
+import com.pinyougou.compositeEntity.SpecificationAndSpecificationOption;
 import com.pinyougou.entity.PageResult;
-import com.pinyougou.entity.Specification;
 import com.pinyougou.pojo.TbSpecification;
 
 /**
@@ -30,13 +30,13 @@ public interface SpecificationService {
 	/**
 	 * 增加
 	*/
-	public void add(Specification specification);
+	public void add(SpecificationAndSpecificationOption specificationAndSpecificationOption);
 	
 	
 	/**
 	 * 修改
 	 */
-	public void update(Specification specification);
+	public void update(SpecificationAndSpecificationOption specificationAndSpecificationOption);
 	
 
 	/**
@@ -44,7 +44,7 @@ public interface SpecificationService {
 	 * @param id
 	 * @return
 	 */
-	public Specification findOne(Long id);
+	public SpecificationAndSpecificationOption findOne(Long id);
 	
 	
 	/**
