@@ -1,7 +1,7 @@
 package com.pinyougou.manager.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
-import com.pinyougou.entity.DMLResult;
+import com.pinyougou.entity.Result;
 import com.pinyougou.entity.PageResult;
 import com.pinyougou.pojo.TbBrand;
 import com.pinyougou.sellergoods.service.BrandService;
@@ -29,17 +29,17 @@ public class BrandController {
     }
 
     @RequestMapping("/insert")
-    public DMLResult insert(@RequestBody TbBrand tbBrand){
-        DMLResult dmlResult;
+    public Result insert(@RequestBody TbBrand tbBrand){
+        Result result;
         try {
             brandService.insert(tbBrand);
-            dmlResult = new DMLResult(true,"添加成功!");
+            result = new Result(true,"添加成功!");
         } catch (Exception e) {
             e.printStackTrace();
-            dmlResult = new DMLResult(false,"添加失败!");
-            return dmlResult;
+            result = new Result(false,"添加失败!");
+            return result;
         }
-        return dmlResult;
+        return result;
     }
 
     @RequestMapping("/findOne")
@@ -48,31 +48,31 @@ public class BrandController {
     }
 
     @RequestMapping("/update")
-    public DMLResult update(@RequestBody TbBrand tbBrand){
-        DMLResult dmlResult;
+    public Result update(@RequestBody TbBrand tbBrand){
+        Result result;
         try {
             brandService.update(tbBrand);
-            dmlResult = new DMLResult(true,"修改成功!");
+            result = new Result(true,"修改成功!");
         } catch (Exception e) {
             e.printStackTrace();
-            dmlResult = new DMLResult(false,"修改失败!");
-            return dmlResult;
+            result = new Result(false,"修改失败!");
+            return result;
         }
-        return dmlResult;
+        return result;
     }
 
     @RequestMapping("/del")
-    public DMLResult delete(Long[] ids){
-        DMLResult dmlResult;
+    public Result delete(Long[] ids){
+        Result result;
         try {
             brandService.delete(ids);
-            dmlResult = new DMLResult(true,"删除成功!");
+            result = new Result(true,"删除成功!");
         } catch (Exception e) {
             e.printStackTrace();
-            dmlResult = new DMLResult(false,"删除失败!");
-            return dmlResult;
+            result = new Result(false,"删除失败!");
+            return result;
         }
-        return dmlResult;
+        return result;
     }
 
     @RequestMapping("/search")

@@ -7,15 +7,15 @@ import java.io.Serializable;
  * @description:
  * @Date:created in 2018/10/08,21:33
  */
-public class DMLResult implements Serializable {
+public class Result implements Serializable {
 
     private boolean success;
     private String message;
 
-    public DMLResult() {
+    public Result() {
     }
 
-    public DMLResult(boolean success, String message) {
+    public Result(boolean success, String message) {
         this.success = success;
         this.message = message;
     }

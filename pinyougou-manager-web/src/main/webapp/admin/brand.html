@@ -14,72 +14,13 @@
     <script src="../plugins/bootstrap/js/bootstrap.min.js"></script>
     <script src="../plugins/angularjs/angular.min.js"></script>
     <script src="../plugins/angularjs/pagination.js"></script>
-    <script>
-        angular.module("pinyougou", ["pagination"]).controller("brand_controller", function ($scope, $http) {
-            //分页
-            $scope.paginationConf = {
-                currentPage: 1,
-                totalItems: 20,
-                itemsPerPage: 10,
-                perPageOptions: [10, 20, 30, 40, 50],
-                onChange: function () {
-                    $scope.reloadPage();
-                }
-            };
-            $scope.searchBrand = {};
-            $scope.findPage = function (searchBrand,page, size) {
-                $http.post("../brand/search.do?page=" + page + "&size=" + size,searchBrand).success(function (data) {
-                    $scope.brands = data.rows;
-                    $scope.paginationConf.totalItems = data.total;
-                })
-            };
-            $scope.reloadPage = function () {
-                $scope.findPage($scope.searchBrand,$scope.paginationConf.currentPage, $scope.paginationConf.itemsPerPage);
-                $scope.delArr = [];
-            };
-            //新增或修改品牌
-            $scope.save = function () {
-                var method = "insert";
-                if ($scope.newBrand.id != null) {
-                    method = "update";
-                }
-                $http.post("../brand/"+method+".do", $scope.newBrand).success(function (data) {
-                    if (data.success) {
-                        $scope.reloadPage();
-                    } else {
-                        alert(data.message);
-                    }
-                })
-            };
-            //品牌信息回显
-            $scope.findOne = function(id){
-                $http.get("../brand/findOne.do?id="+id).success(function (data) {
-                    $scope.newBrand = data;
-                })
-            };
-            //批量删除
-            $scope.delArr = [];
-            $scope.selectToArr = function ($event,id) {
-                if ( $event.target.checked) {
-                    $scope.delArr.push(id);
-                }else{
-                    $scope.delArr.splice($scope.delArr.indexOf(id));
-                }
-            };
-            $scope.del = function () {
-                $http.get("../brand/del.do?ids="+$scope.delArr).success(function (data) {
-                    if (data.success) {
-                        $scope.reloadPage();
-                    } else {
-                        alert(data.message);
-                    }
-                    $scope.delArr = [];
-                })
-            };
-        })
-    </script>
+    <script src="../js/base/base_pagination.js"></script>
+    <script src="../js/service/brandService.js"></script>
+    <script src="../js/base/baseController.js"></script>
+    <script src="../js/controller/brandController.js"></script>
+
 </head>
-<body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="brand_controller">
+<body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="brandController">
 <!-- .box-body -->
 <div class="box-header with-border">
     <h3 class="box-title">品牌管理</h3>
@@ -93,7 +34,7 @@
         <div class="pull-left">
             <div class="form-group form-inline">
                 <div class="btn-group">
-                    <button type="button" class="btn btn-default" title="新建" data-toggle="modal" ng-click="newBrand={}"
+                    <button type="button" class="btn btn-default" title="新建" data-toggle="modal" ng-click="entity={}"
                             data-target="#editModal"><i class="fa fa-file-o"></i> 新建
                     </button>
                     <button type="button" class="btn btn-default" title="删除" ng-click="del()"><i class="fa fa-trash-o"></i> 删除</button>
@@ -106,8 +47,8 @@
         <!--条件查询-->
         <div class="box-tools pull-right">
             <div class="has-feedback">
-                品牌:<input type="text" ng-model="searchBrand.name">&nbsp;&nbsp;&nbsp;首字母:<input type="text" ng-model="searchBrand.firstChar">
-                <button type="button" class="btn btn-default" title="查询" ng-click="reloadPage()"><i class="fa fa-trash-o"></i> 查询</button>
+                品牌:<input type="text" ng-model="searchEntity.name">&nbsp;&nbsp;&nbsp;首字母:<input type="text" ng-model="searchEntity.firstChar">
+                <button type="button" class="btn btn-default" title="查询" ng-click="reloadList()"><i class="fa fa-trash-o"></i> 查询</button>
             </div>
         </div>
         <!--工具栏/-->
@@ -127,7 +68,7 @@
             </thead>
             <tbody>
             <tr ng-repeat="brand in brands">
-                <td><input type="checkbox" ng-click="selectToArr($event,brand.id)"></td>
+                <td><input type="checkbox" ng-click="updateSelection($event,brand.id)"></td>
                 <td>{{brand.id}}</td>
                 <td>{{brand.name}}</td>
                 <td>{{brand.firstChar}}</td>
@@ -160,11 +101,11 @@
                 <table class="table table-bordered table-striped" width="800px">
                     <tr>
                         <td>品牌名称</td>
-                        <td><input class="form-control" placeholder="品牌名称" ng-model="newBrand.name"></td>
+                        <td><input class="form-control" placeholder="品牌名称" ng-model="entity.name"></td>
                     </tr>
                     <tr>
                         <td>首字母</td>
-                        <td><input class="form-control" placeholder="首字母" ng-model="newBrand.firstChar"></td>
+                        <td><input class="form-control" placeholder="首字母" ng-model="entity.firstChar"></td>
                     </tr>
                 </table>
             </div>

@@ -14,10 +14,6 @@
     <file type="web" url="file://$PROJECT_DIR$/pinyougou-sellergoods-service" />
     <file type="web" url="file://$PROJECT_DIR$/pinyougou-shop-web" />
   </component>
-  <component name="Kotlin2JsCompilerArguments">
-    <option name="sourceMapEmbedSources" />
-    <option name="sourceMapPrefix" />
-  </component>
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
