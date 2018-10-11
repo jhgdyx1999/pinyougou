@@ -1,7 +1,9 @@
  //控制层 
-app.controller('typeTemplateController' ,function($scope,$controller   ,typeTemplateService,brandService,specificationService){	
+app.controller('typeTemplateController' ,function($scope,$controller,$http,typeTemplateService,brandService,specificationService){
 	
 	$controller('baseController',{$scope:$scope});//继承
+
+// $scope.brands = {data:[{"id":1,"text":"apple"},{"id":2,"text":"宏基"},{"id":3,"text":"海尔"}]};
 	
     //读取列表数据绑定到表单中  
 	$scope.findAll=function(){
@@ -10,7 +12,7 @@ app.controller('typeTemplateController' ,function($scope,$controller   ,typeTemp
 				$scope.list=response;
 			}			
 		);
-	}    
+	}    ;
 	
 	//分页
 	$scope.findPage=function(page,rows){			
@@ -35,7 +37,7 @@ app.controller('typeTemplateController' ,function($scope,$controller   ,typeTemp
 				
 			}
 		);				
-	}
+	};
 	
 	//保存 
 	$scope.save=function(){				
@@ -55,7 +57,7 @@ app.controller('typeTemplateController' ,function($scope,$controller   ,typeTemp
 				}
 			}		
 		);				
-	}
+	};
 	
 	 
 	//批量删除 
@@ -69,41 +71,41 @@ app.controller('typeTemplateController' ,function($scope,$controller   ,typeTemp
 				}						
 			}		
 		);				
-	}
+	};
 	
 	$scope.searchEntity={};//定义搜索对象 
 	
 	//搜索
-	$scope.search=function(page,rows){			
-		typeTemplateService.search(page,rows,$scope.searchEntity).success(
+	$scope.search=function(page,rows,searchEntity){
+		typeTemplateService.search(page,rows,searchEntity).success(
 			function(response){
 				$scope.list=response.rows;	
 				$scope.paginationConf.totalItems=response.total;//更新总记录数
 			}			
 		);
-	}
+	};
 	
 	$scope.brandList={data:[]};//品牌列表
     
 	//读取品牌列表
-	$scope.findBrandList=function(){
-		brandService.selectOptionList().success(
+	$scope.selectBrandList=function(){
+		brandService.selectBrandList().success(
 			function(response){
 				$scope.brandList={data:response};
 			}
 		);		
-	}
+	};
 	
 	$scope.specList={data:[]};//规格列表
 	
 	//读取规格列表
-	$scope.findSpecList=function(){
-		specificationService.selectOptionList().success(
+	$scope.selectSpecList=function(){
+		specificationService.selectSpecList().success(
 				function(response){
 					$scope.specList={data:response};
 				}
 		);		
-	}
+	};
 	
 	//增加扩展属性行
 	$scope.addTableRow=function(){
@@ -113,5 +115,6 @@ app.controller('typeTemplateController' ,function($scope,$controller   ,typeTemp
 	$scope.deleTableRow=function(index){
 		$scope.entity.customAttributeItems.splice( index,1);
 	}
-	
+
+
 });	

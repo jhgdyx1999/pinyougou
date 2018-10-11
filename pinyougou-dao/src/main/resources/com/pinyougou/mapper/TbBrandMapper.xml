@@ -134,6 +134,9 @@
       <include refid="Example_Where_Clause" />
     </if>
   </select>
+  <select id="selectBrandList" resultType="java.util.Map">
+      SELECT id,name AS  text FROM tb_brand;
+  </select>
   <update id="updateByExampleSelective" parameterType="map" >
     update tb_brand
     <set >

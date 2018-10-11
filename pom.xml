@@ -20,6 +20,8 @@
     </modules>
     <!-- 集中定义依赖版本号 -->
     <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <junit.version>4.12</junit.version>
         <spring.version>4.2.4.RELEASE</spring.version>
         <pagehelper.version>4.0.0</pagehelper.version>

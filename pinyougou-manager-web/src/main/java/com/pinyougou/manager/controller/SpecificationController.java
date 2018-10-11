@@ -111,9 +111,9 @@ public class SpecificationController {
 		return specificationService.findPage(specification, page, rows);		
 	}
 	
-	@RequestMapping("/selectOptionList")
-	public List<Map> selectOptionList(){
-		return specificationService.selectOptionList();
+	@RequestMapping("/selectSpecList")
+	public List<Map> selectSpecList(){
+		return specificationService.selectSpecList();
 	}
 	
 }

@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BrandServiceImpl implements BrandService {
@@ -69,6 +70,11 @@ public class BrandServiceImpl implements BrandService {
         }
         Page<TbBrand> tbBrands = (Page<TbBrand>) brandMapper.selectByExample(tbBrandExample);
         return new PageResult<>(tbBrands.getTotal(), tbBrands.getResult());
+    }
+
+    @Override
+    public List<Map> selectBrandList() {
+        return brandMapper.selectBrandList();
     }
 
 }
