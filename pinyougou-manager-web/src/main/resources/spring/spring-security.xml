@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <!--无需权限验证，可直接访问的页面-->
+    <http pattern="/login.html" security="none"/>
+    <http pattern="/css/**" security="none"/>
+    <http pattern="/js/**" security="none"/>
+    <http pattern="/img/**" security="none"/>
+    <http pattern="/plugins/**" security="none"/>
+
+    <!--配置拦截规则-->
+    <http use-expressions="false">
+        <!--authentication-failure-url:登录失败跳转页面， default-target-url：登陆成功跳转页面，login-page：登陆页面-,always-use-default-target:登陆时总是跳转到默认页面-->
+        <form-login authentication-failure-url="/login.html" default-target-url="/admin/index.html"
+                    login-page="/login.html" always-use-default-target="true"/>
+        <intercept-url pattern="/**" access="ROLE_ADMIN"/>
+        <!--关闭CSRF校验(默认访问jsp文件)-->
+        <csrf disabled="true"/>
+        <headers>
+            <frame-options policy="SAMEORIGIN"/>
+        </headers>
+        <!--退出登录-->
+        <logout logout-success-url="/login.html" />
+    </http>
+    <!--配置授权管理器-->
+    <authentication-manager>
+        <authentication-provider>
+            <user-service>
+                <user name="admin" password="123" authorities="ROLE_ADMIN"/>
+            </user-service>
+        </authentication-provider>
+    </authentication-manager>
+
+</beans:beans>
