@@ -1,6 +1,7 @@
 package com.pinyougou.sellergoods.service;
 import java.util.List;
 
+import com.pinyougou.compositeEntity.GoodsAndGoodsDescAndItems;
 import com.pinyougou.entity.PageResult;
 import com.pinyougou.pojo.TbGoods;
 
@@ -28,13 +29,13 @@ public interface GoodsService {
 	/**
 	 * 增加
 	*/
-	public void add(TbGoods goods);
+	public void add(GoodsAndGoodsDescAndItems goods);
 	
 	
 	/**
 	 * 修改
 	 */
-	public void update(TbGoods goods);
+	public void update(GoodsAndGoodsDescAndItems goods);
 	
 
 	/**
