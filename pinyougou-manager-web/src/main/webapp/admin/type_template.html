@@ -6,7 +6,6 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>类型模板管理</title>
-    <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
     <link rel="stylesheet" href="../plugins/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../plugins/adminLTE/css/AdminLTE.css">
@@ -26,29 +25,28 @@
     <script src="../js/service/specificationService.js"></script>
     <script src="../js/base/baseController.js"></script>
     <script src="../js/controller/typeTemplateController.js"></script>
-
 </head>
 
-<body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="typeTemplateController" ng-init="selectBrandList();selectSpecList()">
+<body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="typeTemplateController"
+      ng-init="selectBrandList();selectSpecList()">
 <!-- .box-body -->
-
 <div class="box-header with-border">
     <h3 class="box-title">商品类型模板管理</h3>
 </div>
-
 <div class="box-body">
-
     <!-- 数据表格 -->
     <div class="table-box">
-
         <!--工具栏-->
         <div class="pull-left">
             <div class="form-group form-inline">
                 <div class="btn-group">
                     <button type="button" class="btn btn-default" title="新建" data-toggle="modal"
-                            data-target="#editModal" ng-click="entity={customAttributeItems:[]};"><i class="fa fa-file-o"></i> 新建
+                            data-target="#editModal" ng-click="entity={customAttributeItems:[]};"><i
+                            class="fa fa-file-o"></i> 新建
                     </button>
-                    <button type="button" class="btn btn-default" title="删除" ng-click="dele()"><i class="fa fa-trash-o"></i> 删除</button>
+                    <button type="button" class="btn btn-default" title="删除" ng-click="dele()"><i
+                            class="fa fa-trash-o"></i> 删除
+                    </button>
 
                     <button type="button" class="btn btn-default" title="刷新" onclick="window.location.reload();"><i
                             class="fa fa-refresh"></i> 刷新
@@ -88,7 +86,8 @@
                 <td>{{jsonToString(typeTemplate.specIds,"text")}}</td>
                 <td>{{jsonToString(typeTemplate.customAttributeItems,"text")}}</td>
                 <td class="text-center">
-                    <button type="button" class="btn bg-olive btn-xs" data-toggle="modal" data-target="#editModal" ng-click="findOne(typeTemplate.id)">修改
+                    <button type="button" class="btn bg-olive btn-xs" data-toggle="modal" data-target="#editModal"
+                            ng-click="findOne(typeTemplate.id)">修改
                     </button>
                 </td>
             </tr>
@@ -151,9 +150,11 @@
                                 <tbody>
                                 <tr ng-repeat="typeTemplateItems in entity.customAttributeItems">
                                     <td><input type="checkbox" class="icheckbox_square-blue"></td>
-                                    <td><input class="form-control" placeholder="属性名称" ng-model="typeTemplateItems.text"></td>
+                                    <td><input class="form-control" placeholder="属性名称"
+                                               ng-model="typeTemplateItems.text"></td>
                                     <td>
-                                        <button type="button" class="btn btn-default" title="删除" ng-click="deleTableRow($index)"><i
+                                        <button type="button" class="btn btn-default" title="删除"
+                                                ng-click="deleTableRow($index)"><i
                                                 class="fa fa-trash-o"></i> 删除
                                         </button>
                                     </td>

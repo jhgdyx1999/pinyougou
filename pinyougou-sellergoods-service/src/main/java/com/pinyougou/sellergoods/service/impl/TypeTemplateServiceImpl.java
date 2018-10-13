@@ -1,6 +1,7 @@
 package com.pinyougou.sellergoods.service.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import com.pinyougou.entity.PageResult;
 import com.alibaba.dubbo.config.annotation.Service;
@@ -110,5 +111,9 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
         return new PageResult<>(page.getTotal(), page.getResult());
     }
 
+    @Override
+    public List<Map> selectAllTemplates() {
+        return typeTemplateMapper.selectAllTemplates();
+    }
 
 }

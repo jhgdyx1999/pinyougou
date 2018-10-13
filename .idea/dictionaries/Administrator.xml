@@ -3,15 +3,19 @@
     <words>
       <w>alibaba</w>
       <w>angularjs</w>
+      <w>bcrypt</w>
       <w>dele</w>
       <w>dubbo</w>
       <w>fastjson</w>
       <w>icheckbox</w>
+      <w>lshoplogin</w>
       <w>pagehelper</w>
       <w>pinyougou</w>
       <w>sameorigin</w>
       <w>sellergoods</w>
+      <w>shoplogin</w>
       <w>springmvc</w>
+      <w>xfat</w>
     </words>
   </dictionary>
 </component>
