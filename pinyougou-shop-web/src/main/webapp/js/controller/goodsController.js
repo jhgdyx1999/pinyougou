@@ -3,7 +3,10 @@ app.controller('goodsController', function ($scope, $controller, goodsService,up
 
     $controller('baseController', {$scope: $scope});//继承
 
-    //读取列表数据绑定到表单中  
+    //自定义审核状态数组
+    $scope.statusAudit = ['未审核','已审核','审核未通过','关闭'];
+
+    //读取列表数据绑定到表单中
     $scope.findAll = function () {
         goodsService.findAll().success(
             function (response) {
@@ -31,7 +34,7 @@ app.controller('goodsController', function ($scope, $controller, goodsService,up
         );
     };
 
-    $scope.entity = {goods:{},goodsDesc:{itemImages:[],customAttributeItems:null}};
+    $scope.entity = {goods:{},goodsDesc:{itemImages:[],customAttributeItems:null,specificationItems:[]},itemList:[]};
     //保存
     $scope.save = function () {
         var serviceObject;//服务层对象
@@ -113,8 +116,8 @@ app.controller('goodsController', function ($scope, $controller, goodsService,up
 
     //加载二级分类列表
     $scope.$watch("entity.goods.category1Id",function (newVal, oldVal) {
+        $scope.entity.goods.category2Id = null;
         if (newVal === null) {
-            $scope.entity.goods.category2Id = null;
             $scope.itemCatList_2 = [];
             $scope.selectItemCatList_1();
             return;
@@ -125,8 +128,8 @@ app.controller('goodsController', function ($scope, $controller, goodsService,up
     });
     //加载三级分类列表
     $scope.$watch("entity.goods.category2Id",function (newVal, oldVal) {
+        $scope.entity.goods.category3Id = null;
         if (newVal === null) {
-            $scope.entity.goods.category3Id = null;
             $scope.itemCatList_3 = [];
             return;
         }
@@ -148,13 +151,58 @@ app.controller('goodsController', function ($scope, $controller, goodsService,up
     $scope.brandIds = {};
     $scope.$watch("entity.goods.typeTemplateId",function (newVal, oldVal) {
         if (newVal === null) {
-            $scope.brandIds = null;
+            $scope.entity.goods.brandId = null;
             $scope.brandIds = [];
+            $scope.specList = [];
+            $scope.entity.goodsDesc.specificationItems = [];
             return;
         }
+        $scope.entity.goodsDesc.specificationItems = [];
         typeTemplateService.findOne(newVal).success(function (response) {
             $scope.brandIds = JSON.parse(response.brandIds);
             $scope.entity.goodsDesc.customAttributeItems = JSON.parse(response.customAttributeItems);
-        })
+        });
+        typeTemplateService.selectSpecificationListWithOptions(newVal).success(function (response) {
+            $scope.specList = response;
+        });
+
+        //规格属性复选框的增删操作
+        $scope.updateSpecificationItems = function ($event,name,value) {
+            var obj = $scope.containsSpecificFieldValue($scope.entity.goodsDesc.specificationItems,"attributeName",name);
+            if (obj != null) {
+                if ($event.target.checked) {
+                    obj["attributeValue"].push(value);
+                }else{
+                    obj["attributeValue"].splice(obj["attributeValue"].indexOf(value),1);
+                    if ( obj["attributeValue"].length === 0){
+                        $scope.entity.goodsDesc.specificationItems.splice($scope.entity.goodsDesc.specificationItems.indexOf(obj),1)
+                    }
+                }
+            }else{
+                $scope.entity.goodsDesc.specificationItems.push({"attributeName":name,"attributeValue":[value]});
+            }
+        };
+
+        //动态生成规格选项表
+        $scope.generateTable = function () {
+            $scope.entity.itemList = [{spec:{},price:null,num:null,status:"0",isDefault:"0"}];
+            var specificationItems = $scope.entity.goodsDesc.specificationItems;
+            for (var i = 0; i <specificationItems.length; i++) {
+                $scope.entity.itemList = addColumn( $scope.entity.itemList,specificationItems[i]["attributeName"],specificationItems[i]["attributeValue"]);
+            }
+        };
+        //复制行对象并根据新增列属性动态新增行对象,生成新的行集合
+        var addColumn = function (list,columnName,columnValues) {
+            var newList = [];
+            for (var i = 0; i < list.length; i++) {
+                var oldRow = list[i];
+                for (var j = 0; j < columnValues.length; j++) {
+                    var newRow = JSON.parse(JSON.stringify(oldRow));
+                    newRow.spec[columnName] = columnValues[j];
+                    newList.push(newRow);
+                }
+            }
+            return newList;
+        };
     });
 });

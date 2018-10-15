@@ -3,11 +3,15 @@ package com.pinyougou.sellergoods.service.impl;
 import java.util.List;
 import java.util.Map;
 
+import com.alibaba.fastjson.JSON;
 import com.pinyougou.entity.PageResult;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.pinyougou.mapper.TbSpecificationOptionMapper;
 import com.pinyougou.mapper.TbTypeTemplateMapper;
+import com.pinyougou.pojo.TbSpecificationOption;
+import com.pinyougou.pojo.TbSpecificationOptionExample;
 import com.pinyougou.pojo.TbTypeTemplate;
 import com.pinyougou.pojo.TbTypeTemplateExample;
 import com.pinyougou.pojo.TbTypeTemplateExample.Criteria;
@@ -26,6 +30,8 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 
     @Resource
     private TbTypeTemplateMapper typeTemplateMapper;
+    @Resource
+    private TbSpecificationOptionMapper specificationOptionMapper;
 
     /**
      * 查询全部
@@ -114,6 +120,21 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
     @Override
     public List<Map> selectAllTemplates() {
         return typeTemplateMapper.selectAllTemplates();
+    }
+
+    @Override
+    public List<Map> selectSpecificationListWithOptions(Long id) {
+        TbTypeTemplate typeTemplate = typeTemplateMapper.selectByPrimaryKey(id);
+        List<Map> list = JSON.parseArray(typeTemplate.getSpecIds(), Map.class);
+
+        for (Map map:list){
+            TbSpecificationOptionExample specificationOptionExample = new TbSpecificationOptionExample();
+            TbSpecificationOptionExample.Criteria criteria = specificationOptionExample.createCriteria();
+            criteria.andSpecIdEqualTo(new Long(map.get("id").toString()));
+            List<TbSpecificationOption> tbSpecificationOptions = specificationOptionMapper.selectByExample(specificationOptionExample);
+            map.put("options", tbSpecificationOptions);
+        }
+        return list;
     }
 
 }

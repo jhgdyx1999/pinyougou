@@ -4,12 +4,14 @@
     <inspection_tool class="HtmlUnknownAttribute" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="myValues">
         <value>
-          <list size="5">
+          <list size="7">
             <item index="0" class="java.lang.String" itemvalue="ng-app" />
             <item index="1" class="java.lang.String" itemvalue="ng-click" />
             <item index="2" class="java.lang.String" itemvalue="config" />
             <item index="3" class="java.lang.String" itemvalue="select2-model" />
             <item index="4" class="java.lang.String" itemvalue="ng-disabled" />
+            <item index="5" class="java.lang.String" itemvalue="ng-true-value" />
+            <item index="6" class="java.lang.String" itemvalue="ng-false-value" />
           </list>
         </value>
       </option>
