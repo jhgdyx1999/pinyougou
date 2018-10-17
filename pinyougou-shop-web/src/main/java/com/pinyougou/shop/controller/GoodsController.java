@@ -57,7 +57,7 @@ public class GoodsController {
     public Result add(@RequestBody GoodsAndGoodsDescAndItems goodsAndGoodsDescAndItems) {
         String sellerId = SecurityContextHolder.getContext().getAuthentication().getName();
         goodsAndGoodsDescAndItems.getGoods().setSellerId(sellerId);
-    try {
+        try {
             goodsService.add(goodsAndGoodsDescAndItems);
             return new Result(true, "增加成功");
         } catch (Exception e) {
@@ -74,6 +74,13 @@ public class GoodsController {
      */
     @RequestMapping("/update")
     public Result update(@RequestBody GoodsAndGoodsDescAndItems goodsAndGoodsDescAndItems) {
+        String sellerId = SecurityContextHolder.getContext().getAuthentication().getName();
+        GoodsAndGoodsDescAndItems targetGoodsAndGoodsDescAndItems = goodsService.findOne(goodsAndGoodsDescAndItems.getGoods().getId());
+        String targetSellerId = targetGoodsAndGoodsDescAndItems.getGoods().getSellerId();
+        //如果待修改的商品不属于当前商家,或者当前提交的sellerId与登录的用户不符合,则为"非法操作"
+        if (!sellerId.equals(targetSellerId) || !sellerId.equals(goodsAndGoodsDescAndItems.getGoods().getSellerId())){
+            return new Result(false, "非法操作");
+        }
         try {
             goodsService.update(goodsAndGoodsDescAndItems);
             return new Result(true, "修改成功");
@@ -90,7 +97,7 @@ public class GoodsController {
      * @return
      */
     @RequestMapping("/findOne")
-    public TbGoods findOne(Long id) {
+    public GoodsAndGoodsDescAndItems findOne(Long id) {
         return goodsService.findOne(id);
     }
 

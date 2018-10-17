@@ -1,5 +1,5 @@
 //控制层
-app.controller('goodsController', function ($scope, $controller, goodsService,uploadService,itemCatService,typeTemplateService) {
+app.controller('goodsController', function ($scope, $controller, $location,goodsService,uploadService,itemCatService,typeTemplateService) {
 
     $controller('baseController', {$scope: $scope});//继承
 
@@ -14,7 +14,15 @@ app.controller('goodsController', function ($scope, $controller, goodsService,up
             }
         );
     };
-
+    $scope.itemCatList = [];
+    //初始化商品分类集合
+    $scope.selectAllItemCat = function () {
+        itemCatService.findAll().success(function (response) {
+            for (var i = 0; i < response.length; i++) {
+                $scope.itemCatList[response[i]["id"]] = response[i]["name"];
+            }
+        })
+    };
     //分页
     $scope.findPage = function (page, rows) {
         goodsService.findPage(page, rows).success(
@@ -25,16 +33,36 @@ app.controller('goodsController', function ($scope, $controller, goodsService,up
         );
     };
 
+    $scope.entity = {goods:{},goodsDesc:{itemImages:[],customAttributeItems:null,specificationItems:[]},itemList:[]};
     //查询实体
-    $scope.findOne = function (id) {
+    var id = $location.search()["id"];
+    //用以标记在修改时是否是首次加载下拉菜单
+    var count = 0;
+    $scope.findOne = function () {
+        if (id == null) {
+            return;
+        }
         goodsService.findOne(id).success(
             function (response) {
                 $scope.entity = response;
+                //加载富文本编辑器内容
+                editor.html($scope.entity.goodsDesc.introduction);
+                //加载商品图片
+                $scope.entity.goodsDesc.itemImages = JSON.parse($scope.entity.goodsDesc.itemImages);
+                //加载扩展属性
+                $scope.entity.goodsDesc.customAttributeItems = JSON.parse($scope.entity.goodsDesc.customAttributeItems);
+                //加载规格选项
+                $scope.entity.goodsDesc.specificationItems = JSON.parse($scope.entity.goodsDesc.specificationItems);
+                //加载SKU规格列表
+                for (var i = 0; i < $scope.entity.itemList.length; i++) {
+                    $scope.entity.itemList[i].spec = JSON.parse($scope.entity.itemList[i].spec);
+                }
+
             }
         );
     };
 
-    $scope.entity = {goods:{},goodsDesc:{itemImages:[],customAttributeItems:null,specificationItems:[]},itemList:[]};
+
     //保存
     $scope.save = function () {
         var serviceObject;//服务层对象
@@ -47,11 +75,11 @@ app.controller('goodsController', function ($scope, $controller, goodsService,up
         serviceObject.success(
             function (response) {
                 if (response.success) {
-                   alert(response.message)
+                   alert(response.message);
                 } else {
                     alert(response.message);
                 }
-                location.reload();
+                location.href = "goods.html";
                 $scope.entity = {};
             }
         );
@@ -116,11 +144,12 @@ app.controller('goodsController', function ($scope, $controller, goodsService,up
 
     //加载二级分类列表
     $scope.$watch("entity.goods.category1Id",function (newVal, oldVal) {
-        $scope.entity.goods.category2Id = null;
-        if (newVal === null) {
-            $scope.itemCatList_2 = [];
-            $scope.selectItemCatList_1();
-            return;
+        if (id == null || count !==0) {
+            $scope.entity.goods.category2Id = null;
+            if (newVal === null) {
+                $scope.itemCatList_2 = [];
+                return;
+            }
         }
         itemCatService.findByParentId(newVal).success(function (response) {
             $scope.itemCatList_2 = response;
@@ -128,22 +157,27 @@ app.controller('goodsController', function ($scope, $controller, goodsService,up
     });
     //加载三级分类列表
     $scope.$watch("entity.goods.category2Id",function (newVal, oldVal) {
-        $scope.entity.goods.category3Id = null;
-        if (newVal === null) {
-            $scope.itemCatList_3 = [];
-            return;
+        if (id == null || count !==0) {
+            $scope.entity.goods.category3Id = null;
+            if (newVal === null) {
+                $scope.itemCatList_3 = [];
+                return;
+            }
         }
         itemCatService.findByParentId(newVal).success(function (response) {
             $scope.itemCatList_3 = response;
         })
     });
+
     //查询模板ID
     $scope.$watch("entity.goods.category3Id",function (newVal, oldVal) {
         if (newVal === null) {
             $scope.entity.goods.typeTemplateId = null;
+            $scope.entity.goodsDesc.customAttributeItems = null;
             return;
         }
         itemCatService.findOne(newVal).success(function (response) {
+
             $scope.entity.goods.typeTemplateId = response.typeId;
         })
     });
@@ -155,12 +189,16 @@ app.controller('goodsController', function ($scope, $controller, goodsService,up
             $scope.brandIds = [];
             $scope.specList = [];
             $scope.entity.goodsDesc.specificationItems = [];
+            $scope.entity.goods.isEnableSpec = 0;
             return;
         }
-        $scope.entity.goodsDesc.specificationItems = [];
         typeTemplateService.findOne(newVal).success(function (response) {
             $scope.brandIds = JSON.parse(response.brandIds);
-            $scope.entity.goodsDesc.customAttributeItems = JSON.parse(response.customAttributeItems);
+            if (count !== 0 || id == null) {
+                //读取模板扩展属性
+                $scope.entity.goodsDesc.customAttributeItems = JSON.parse(response.customAttributeItems);
+            }
+            count=1;
         });
         typeTemplateService.selectSpecificationListWithOptions(newVal).success(function (response) {
             $scope.specList = response;
@@ -203,6 +241,12 @@ app.controller('goodsController', function ($scope, $controller, goodsService,up
                 }
             }
             return newList;
+        };
+        //加载规格选项
+        $scope.checkSpecItems = function (optionName,optionValue) {
+            var specificationItems = $scope.entity.goodsDesc.specificationItems;
+            var obj = $scope.containsSpecificFieldValue(specificationItems,"attributeName",optionName);
+            return (obj != null && obj.attributeValue.indexOf(optionValue) >=0);
         };
     });
 });

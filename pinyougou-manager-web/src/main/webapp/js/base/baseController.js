@@ -35,4 +35,14 @@ app.controller("baseController",function ($scope) {
         }
         return strObj;
     };
+
+    //验证数组内是否包含特定属性,若存在则返回集合对象
+    $scope.containsSpecificFieldValue = function (list,attrName,attrValue) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i][attrName] === attrValue) {
+                return list[i];
+            }
+        }
+        return null;
+    }
 });

@@ -129,5 +129,14 @@ public class TypeTemplateController {
         return typeTemplateService.selectAllTemplates();
     }
 
+    /**
+     * 根据模板id查询相对应的规格及规格选项
+     * @param id
+     * @return
+     */
+    @RequestMapping("/selectSpecificationListWithOptions")
+    public List<Map> selectSpecificationListWithOptions(Long id){
+        return typeTemplateService.selectSpecificationListWithOptions(id);
+    }
 
 }

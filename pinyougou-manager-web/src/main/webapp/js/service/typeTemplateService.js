@@ -32,5 +32,9 @@ app.service('typeTemplateService', function ($http) {
     //查询所有模板
     this.selectAllTemplates = function () {
         return $http.get('../typeTemplate/selectAllTemplates.do');
+    };
+    // 根据模板id查询相对应的规格及规格选项
+    this.selectSpecificationListWithOptions = function (id) {
+        return $http.get('../typeTemplate/selectSpecificationListWithOptions.do?id='+id);
     }
 });

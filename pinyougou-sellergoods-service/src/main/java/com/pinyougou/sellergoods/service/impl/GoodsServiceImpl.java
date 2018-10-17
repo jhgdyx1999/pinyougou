@@ -64,12 +64,66 @@ public class GoodsServiceImpl implements GoodsService {
      */
     @Override
     public void add(GoodsAndGoodsDescAndItems goodsAndGoodsDescAndItems) {
-        TbGoods goods = goodsAndGoodsDescAndItems.getGoods();goods.setAuditStatus("0");
+        TbGoods goods = goodsAndGoodsDescAndItems.getGoods();
+        goods.setAuditStatus("0");
         goodsMapper.insert(goods);
 
         TbGoodsDesc goodsDesc = goodsAndGoodsDescAndItems.getGoodsDesc();
         goodsDesc.setGoodsId(goods.getId());
         goodsDescMapper.insert(goodsDesc);
+
+        saveItems(goodsAndGoodsDescAndItems);
+    }
+
+
+    public void setCommonProperties(TbItem item,TbGoods goods,TbGoodsDesc goodsDesc){
+        //查询商家
+        String sellerId = goods.getSellerId();
+        TbSeller seller = sellerMapper.selectByPrimaryKey(sellerId);
+        //商家信息
+        item.setSellerId(sellerId);//商家id
+        item.setSeller(seller.getNickName());//商家店铺名
+        //商品图片
+        List<Map> itemImagesList = JSON.parseArray(goodsDesc.getItemImages(), Map.class);
+        if (itemImagesList != null && itemImagesList.size() != 0){
+            item.setImage(itemImagesList.get(0).get("url").toString());
+        }
+        //分类信息
+        item.setCategoryid(goods.getCategory3Id());
+        item.setCategory(itemCatMapper.selectByPrimaryKey(goods.getCategory3Id()).getName());
+        //创建时间和跟新时间
+        item.setCreateTime(new Date());
+        item.setUpdateTime(new Date());
+        //商品id
+        item.setGoodsId(goods.getId());
+        //品牌
+        item.setBrand(brandMapper.selectByPrimaryKey(goods.getBrandId()).getName());
+    }
+
+    /**
+     * 修改
+     */
+    @Override
+    public void update(GoodsAndGoodsDescAndItems goodsAndGoodsDescAndItems) {
+        TbGoods goods = goodsAndGoodsDescAndItems.getGoods();
+        goods.setAuditStatus("0");//商品跟新后需重新审核
+        goodsMapper.updateByPrimaryKey(goods);
+
+        TbGoodsDesc goodsDesc = goodsAndGoodsDescAndItems.getGoodsDesc();
+        goodsDescMapper.updateByPrimaryKey(goodsDesc);
+
+        TbItemExample itemExample = new TbItemExample();
+        TbItemExample.Criteria criteria = itemExample.createCriteria();
+        criteria.andGoodsIdEqualTo(goods.getId());
+        itemMapper.deleteByExample(itemExample);
+
+        saveItems(goodsAndGoodsDescAndItems);
+
+    }
+
+    private void saveItems(GoodsAndGoodsDescAndItems goodsAndGoodsDescAndItems){
+        TbGoods goods = goodsAndGoodsDescAndItems.getGoods();
+        TbGoodsDesc goodsDesc = goodsAndGoodsDescAndItems.getGoodsDesc();
         //判定是否启用规格
         if ("1".equals(goods.getIsEnableSpec())){
             List<TbItem> itemList = goodsAndGoodsDescAndItems.getItemList();
@@ -99,39 +153,6 @@ public class GoodsServiceImpl implements GoodsService {
         }
     }
 
-
-    public void setCommonProperties(TbItem item,TbGoods goods,TbGoodsDesc goodsDesc){
-        //查询商家
-        String sellerId = goods.getSellerId();
-        TbSeller seller = sellerMapper.selectByPrimaryKey(sellerId);
-        //商家信息
-        item.setSellerId(sellerId);//商家id
-        item.setSeller(seller.getNickName());//商家店铺名
-        //商品图片
-        List<Map> ItemImagesList = JSON.parseArray(goodsDesc.getItemImages(), Map.class);
-        if (ItemImagesList.size() != 0){
-            item.setImage(ItemImagesList.get(0).get("url").toString());
-        }
-        //分类信息
-        item.setCategoryid(goods.getCategory3Id());
-        item.setCategory(itemCatMapper.selectByPrimaryKey(goods.getCategory3Id()).getName());
-        //创建时间和跟新时间
-        item.setCreateTime(new Date());
-        item.setUpdateTime(new Date());
-        //商品id
-        item.setGoodsId(goods.getId());
-        //品牌
-        item.setBrand(brandMapper.selectByPrimaryKey(goods.getBrandId()).getName());
-    }
-
-    /**
-     * 修改
-     */
-    @Override
-    public void update(GoodsAndGoodsDescAndItems goods) {
-
-    }
-
     /**
      * 根据ID获取实体
      *
@@ -139,8 +160,22 @@ public class GoodsServiceImpl implements GoodsService {
      * @return
      */
     @Override
-    public TbGoods findOne(Long id) {
-        return goodsMapper.selectByPrimaryKey(id);
+    public GoodsAndGoodsDescAndItems findOne(Long id) {
+        GoodsAndGoodsDescAndItems goodsAndGoodsDescAndItems = new GoodsAndGoodsDescAndItems();
+        //查询商品
+        TbGoods goods = goodsMapper.selectByPrimaryKey(id);
+        goodsAndGoodsDescAndItems.setGoods(goods);
+        //查询商品描述
+        TbGoodsDesc goodsDesc = goodsDescMapper.selectByPrimaryKey(id);
+        goodsAndGoodsDescAndItems.setGoodsDesc(goodsDesc);
+        //查询SKU列表
+        TbItemExample itemExample = new TbItemExample();
+        TbItemExample.Criteria criteria = itemExample.createCriteria();
+        criteria.andGoodsIdEqualTo(id);
+        List<TbItem> tbItems = itemMapper.selectByExample(itemExample);
+        goodsAndGoodsDescAndItems.setItemList(tbItems);
+
+        return goodsAndGoodsDescAndItems;
     }
 
     /**
@@ -149,7 +184,9 @@ public class GoodsServiceImpl implements GoodsService {
     @Override
     public void delete(Long[] ids) {
         for (Long id : ids) {
-            goodsMapper.deleteByPrimaryKey(id);
+            TbGoods goods = goodsMapper.selectByPrimaryKey(id);
+            goods.setIsDelete("1");
+            goodsMapper.updateByPrimaryKey(goods);
         }
     }
 
@@ -160,6 +197,7 @@ public class GoodsServiceImpl implements GoodsService {
 
         TbGoodsExample example = new TbGoodsExample();
         Criteria criteria = example.createCriteria();
+        criteria.andIsDeleteIsNull();
 
         if (goods != null) {
             if (goods.getSellerId() != null && goods.getSellerId().length() > 0) {
@@ -192,5 +230,13 @@ public class GoodsServiceImpl implements GoodsService {
         Page<TbGoods> page = (Page<TbGoods>) goodsMapper.selectByExample(example);
         return new PageResult<>(page.getTotal(), page.getResult());
     }
+
+    @Override
+    public void updateAuditStatus(TbGoods goods) {
+        TbGoods tbGoods = goodsMapper.selectByPrimaryKey(goods.getId());
+        tbGoods.setAuditStatus(goods.getAuditStatus());
+        goodsMapper.updateByPrimaryKey(tbGoods);
+    }
+
 
 }

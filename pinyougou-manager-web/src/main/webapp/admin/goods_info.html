@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>商品编辑</title>
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <link rel="stylesheet" href="../plugins/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../plugins/adminLTE/css/AdminLTE.css">
+    <link rel="stylesheet" href="../plugins/adminLTE/css/skins/_all-skins.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../plugins/jQuery/jquery-2.2.3.min.js"></script>
+    <script src="../plugins/bootstrap/js/bootstrap.min.js"></script>
+    <!-- 富文本编辑器 -->
+    <link rel="stylesheet" href="../plugins/kindeditor/themes/default/default.css"/>
+    <script charset="utf-8" src="../plugins/kindeditor/kindeditor-min.js"></script>
+    <script charset="utf-8" src="../plugins/kindeditor/lang/zh_CN.js"></script>
+    <script src="../js/base/editor.js"></script>
+    <script src="../plugins/angularjs/angular.min.js"></script>
+    <script src="../js/base/base.js"></script>
+    <script src="../js/service/goodsService.js"></script>
+    <script src="../js/service/itemCatService.js"></script>
+    <script src="../js/service/brandService.js"></script>
+    <script src="../js/service/typeTemplateService.js"></script>
+    <script src="../js/base/baseController.js"></script>
+    <script src="../js/controller/goodsController.js"></script>
+</head>
+
+<body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="goodsController"
+      ng-init="selectItemCatList_1();findOne()">
+<!-- 正文区域 -->
+<section class="content">
+    <div class="box-body">
+        <!--tab页-->
+        <div class="nav-tabs-custom">
+            <!--tab头-->
+            <ul class="nav nav-tabs">
+                <li class="active">
+                    <a href="#home" data-toggle="tab">商品基本信息</a>
+                </li>
+                <li>
+                    <a href="#pic_upload" data-toggle="tab">商品图片</a>
+                </li>
+                <li>
+                    <a href="#customAttribute" data-toggle="tab">扩展属性</a>
+                </li>
+                <li>
+                    <a href="#spec" data-toggle="tab">规格</a>
+                </li>
+            </ul>
+            <!--tab头/-->
+
+            <!--tab内容-->
+            <div class="tab-content">
+                <!--表单内容-->
+                <div class="tab-pane active" id="home">
+                    <div class="row data-type">
+                        <div class="col-md-2 title">商品分类</div>
+
+                        <div class="col-md-4 data">
+                            <table>
+                                <tr style="text-align: center">
+                                    <td ng-show="category1Name != null">
+                                        <div>{{category1Name}}</div>
+                                    </td>
+                                    <td ng-show="category2Name != null">
+                                        <div> / {{category2Name}}</div>
+                                    </td>
+                                    <td ng-show="category3Name != null">
+                                        <div> / {{category3Name}}</div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-2 title">商品名称</div>
+                        <div class="col-md-4 data">
+                            <span>{{entity.goods.goodsName}}</span>
+                        </div>
+
+                        <div class="col-md-2 title">品牌</div>
+                        <div class="col-md-4 data">
+                            {{brandName}}
+                        </div>
+                        <div class="col-md-2 title">价格</div>
+                        <div class="col-md-4 data">
+                            {{entity.goods.price}}
+                        </div>
+                        <div class="col-md-2 title">副标题</div>
+                        <div class="col-md-10 data">
+                            {{entity.goods.caption}}
+                        </div>
+                        <div class="col-md-2 title editer">商品介绍</div>
+                        <div class="col-md-10 data editer">
+                            <textarea name="introductionContent"
+                                      style="width:800px;height:400px;visibility:hidden;"></textarea>
+                        </div>
+
+                        <div class="col-md-2 title rowHeight2x">包装列表</div>
+                        <div class="col-md-10 data rowHeight2x">
+                            {{ entity.goodsDesc.packageList}}
+                        </div>
+                        <div class="col-md-2 title rowHeight2x">售后服务</div>
+                        <div class="col-md-10 data rowHeight2x ">
+                            {{entity.goodsDesc.saleService}}
+                        </div>
+                    </div>
+                </div>
+                <!--图片上传-->
+                <div class="tab-pane" id="pic_upload">
+                    <div class="row data-type">
+                        <!-- 颜色图片 -->
+                        <table class="table table-bordered table-striped table-hover dataTable">
+                            <thead>
+                            <tr>
+                                <th class="sorting">颜色</th>
+                                <th class="sorting">图片</th>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="itemImage in entity.goodsDesc.itemImages">
+                                <td>{{itemImage.color}}</td>
+                                <td>
+                                    <img alt="" src="{{itemImage.url}}" width="100px" height="100px">
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+                <!--扩展属性-->
+                <div class="tab-pane" id="customAttribute">
+                    <div class="row data-type">
+                        <div ng-repeat="customAttributeItem in entity.goodsDesc.customAttributeItems">
+                            <div class="col-md-2 title">{{customAttributeItem.text}}</div>
+                            <div class="col-md-10 data">
+                                {{customAttributeItem.value}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--规格-->
+                <div class="tab-pane" id="spec">
+                    <p>
+                    <div ng-if="entity.goods.isEnableSpec == 1">
+                        <div class="row data-type">
+                            <table class="table table-bordered table-striped table-hover dataTable">
+                                <thead>
+                                <tr>
+                                    <th class="sorting" ng-repeat="item in entity.goodsDesc.specificationItems">
+                                        {{item.attributeName}}
+                                    </th>
+                                    <th class="sorting">价格</th>
+                                    <th class="sorting">库存</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-repeat="rowItem in entity.itemList">
+                                    <td ng-repeat="item in entity.goodsDesc.specificationItems">
+                                        {{rowItem.spec[item.attributeName]}}
+                                    </td>
+                                    <td>
+                                        {{rowItem.price}}
+                                    </td>
+                                    <td>
+                                        {{rowItem.num}}
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--tab内容/-->
+            <!--表单内容/-->
+        </div>
+    </div>
+    <div class="btn-toolbar list-toolbar">
+        <button class="btn btn-success" ng-click="updateAuditStatus(entity.goods.id,1)"><i class="fa fa-save"></i>审核通过</button>
+        <button class="btn btn-danger" ng-click="updateAuditStatus(entity.goods.id,2)"><i class="fa fa-save"></i>审核未通过</button>
+        <button class="btn btn-primary" ng-click="updateAuditStatus(entity.goods.id,3)"><i class="fa fa-save"></i>关闭</button>
+        <a href="goods.html" class="btn btn-default">返回列表</a>
+    </div>
+</section>
+</body>
+
+</html>
