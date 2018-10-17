@@ -17,15 +17,16 @@
     <script src="../plugins/angularjs/pagination.js"></script>
     <link rel="stylesheet" href="../plugins/angularjs/pagination.css">
     <!-- 分页组件结束 -->
-
-
     <script type="text/javascript" src="../js/base/base_pagination.js"></script>
     <script type="text/javascript" src="../js/service/contentService.js"></script>
+    <script type="text/javascript" src="../js/service/contentCategoryService.js"></script>
+    <script type="text/javascript" src="../js/service/uploadService.js"></script>
     <script type="text/javascript" src="../js/base/baseController.js"></script>
     <script type="text/javascript" src="../js/controller/contentController.js"></script>
 
 </head>
-<body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="contentController">
+<body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="contentController"
+      ng-init="selectContentCategoryList()">
 <!-- .box-body -->
 <div class="box-header with-border">
     <h3 class="box-title">管理</h3>
@@ -65,14 +66,13 @@
                 <th class="" style="padding-right:0px">
                     <input id="selall" type="checkbox" class="icheckbox_square-blue">
                 </th>
-                <th class="sorting"></th>
-                <th class="sorting">内容类目ID</th>
+                <th class="sorting">ID</th>
+                <th class="sorting">内容类目</th>
                 <th class="sorting">内容标题</th>
                 <th class="sorting">链接</th>
-                <th class="sorting">图片绝对路径</th>
+                <th class="sorting">图片</th>
                 <th class="sorting">状态</th>
                 <th class="sorting">排序</th>
-
                 <th class="text-center">操作</th>
             </tr>
             </thead>
@@ -80,13 +80,12 @@
             <tr ng-repeat="entity in list">
                 <td><input type="checkbox" ng-click="updateSelection($event,entity.id)"></td>
                 <td>{{entity.id}}</td>
-                <td>{{entity.categoryId}}</td>
+                <td>{{contentCategoryNameList[entity.categoryId]}}</td>
                 <td>{{entity.title}}</td>
                 <td>{{entity.url}}</td>
-                <td>{{entity.pic}}</td>
-                <td>{{entity.status}}</td>
+                <td><img src="{{entity.pic}}" width="100px" height="50px"></td>
+                <td>{{status[entity.status]}}</td>
                 <td>{{entity.sortOrder}}</td>
-
                 <td class="text-center">
                     <button type="button" class="btn bg-olive btn-xs" data-toggle="modal" data-target="#editModal"
                             ng-click="findOne(entity.id)">修改
@@ -114,48 +113,38 @@
             <div class="modal-body">
                 <table class="table table-bordered table-striped" width="800px">
                     <tr>
-
-                        <td>内容类目ID</td>
-
-                        <td><input class="form-control" ng-model="entity.categoryId" placeholder="内容类目ID"></td>
-
+                        <td>内容类目</td>
+                        <td>
+                            <select ng-model="entity.categoryId" class="form-control"
+                                    ng-options="contentCategory.id as contentCategory.name for contentCategory in contentCategoryList">
+                                <option value="">请选择</option>
+                            </select>
                     </tr>
                     <tr>
-
                         <td>内容标题</td>
-
                         <td><input class="form-control" ng-model="entity.title" placeholder="内容标题"></td>
-
                     </tr>
                     <tr>
-
                         <td>链接</td>
-
                         <td><input class="form-control" ng-model="entity.url" placeholder="链接"></td>
-
                     </tr>
                     <tr>
-
-                        <td>图片绝对路径</td>
-
-                        <td><input class="form-control" ng-model="entity.pic" placeholder="图片绝对路径"></td>
-
+                        <td>图片</td>
+                        <td>
+                            <input type="file" id="file">
+                            <button ng-click="upload()">上传图片</button>
+                            <img src="{{entity.pic}}" width="200px" height="100px">
+                        </td>
                     </tr>
                     <tr>
-
                         <td>状态</td>
-
-                        <td><input class="form-control" ng-model="entity.status" placeholder="状态"></td>
-
+                        <td><input type="checkbox"  ng-model="entity.status" placeholder="状态"
+                                   ng-true-value="1" ng-false-value="0">生效</td>
                     </tr>
                     <tr>
-
                         <td>排序</td>
-
                         <td><input class="form-control" ng-model="entity.sortOrder" placeholder="排序"></td>
-
                     </tr>
-
                 </table>
             </div>
             <div class="modal-footer">
