@@ -3,6 +3,9 @@ app.controller('goodsController', function ($scope, $controller, $location,goods
 
     $controller('baseController', {$scope: $scope});//继承
 
+    $scope.selectIdsByButton = [];
+    $scope.marketableOperation = null;
+
     //自定义审核状态数组
     $scope.statusAudit = ['未审核','已审核','审核未通过','关闭'];
 
@@ -21,6 +24,28 @@ app.controller('goodsController', function ($scope, $controller, $location,goods
             for (var i = 0; i < response.length; i++) {
                 $scope.itemCatList[response[i]["id"]] = response[i]["name"];
             }
+        })
+    };
+    //选择执行操作
+    $scope.selectOperation = function(ops){
+        $scope.marketableOperation = ops;
+    };
+
+    //商品上下架操作
+    $scope.updateIsMarketableStatus = function (status) {
+        var selectIds = [];
+        if ($scope.marketableOperation === 1) {
+            selectIds =  $scope.selectIdsByButton;
+        }else{
+            selectIds = $scope.selectIds
+        }
+        goodsService.updateIsMarketableStatus(selectIds,status).success(function (response) {
+            if (response.success) {
+                $scope.reloadList();//刷新列表
+            }else{
+                alert(response.message);
+            }
+            $scope.selectIdsByButton = [];
         })
     };
     //分页
@@ -248,5 +273,7 @@ app.controller('goodsController', function ($scope, $controller, $location,goods
             var obj = $scope.containsSpecificFieldValue(specificationItems,"attributeName",optionName);
             return (obj != null && obj.attributeValue.indexOf(optionValue) >=0);
         };
+
+
     });
 });

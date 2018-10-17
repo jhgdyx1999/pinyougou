@@ -24,7 +24,8 @@
     <script src="../js/controller/goodsController.js"></script>
 </head>
 
-<body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="goodsController" ng-init="selectAllItemCat()">
+<body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="goodsController"
+      ng-init="selectAllItemCat()">
 <!-- .box-body -->
 <div class="box-header with-border">
     <h3 class="box-title">商品管理</h3>
@@ -39,8 +40,15 @@
             <div class="form-group form-inline">
                 <div class="btn-group">
                     <a href="goods_edit.html" class="btn btn-default">新建</a>
-                    <button type="button" class="btn btn-default" title="删除"><i class="fa fa-trash-o"></i> 删除</button>
-                    <button type="button" class="btn btn-default" title="提交审核"><i class="fa fa-check"></i> 提交审核</button>
+                    <button type="button" class="btn btn-default" title="删除" ng-click="dele()"><i
+                            class="fa fa-trash-o"></i> 删除
+                    </button>
+                    <button type="button" class="btn btn-default" title="上架" ng-click="selectOperation(0);updateIsMarketableStatus('1')"><i
+                            class="fa fa-check"></i> 上架
+                    </button>
+                    <button type="button" class="btn btn-default" title="下架" ng-click="selectOperation(0);updateIsMarketableStatus('0')"><i
+                            class="fa fa-check"></i> 下架
+                    </button>
                     <button type="button" class="btn btn-default" title="屏蔽" onclick='confirm("你确认要屏蔽吗？")'><i
                             class="fa fa-ban"></i> 屏蔽
                     </button>
@@ -81,10 +89,11 @@
                 <th class="sorting">状态</th>
                 <th class="text-center">操作</th>
             </tr>
+
             </thead>
             <tbody>
             <tr ng-repeat="entity in list">
-                <td><input type="checkbox"></td>
+                <td><input type="checkbox" ng-click="updateSelection($event,entity.id)"></td>
                 <td>{{entity.id}}</td>
                 <td>{{entity.goodsName}}</td>
                 <td>{{entity.price}}</td>
@@ -92,10 +101,19 @@
                 <td>{{itemCatList[entity.category2Id]}}</td>
                 <td>{{itemCatList[entity.category3Id]}}</td>
                 <td>
-                    <span>{{statusAudit[entity.auditStatus]}}</span>
+                    <span>{{statusAudit[entity.auditStatus]}}<span
+                            ng-if="entity.isMarketable == '1'">&nbsp;/&nbsp; 已上架</span></span>
                 </td>
                 <td class="text-center">
-                    <a href="goods_edit.html#?id={{entity.id}}" class="btn bg-olive btn-xs">修改</a>
+
+                    <a href="goods_edit.html#?id={{entity.id}}" class="btn bg-olive btn-xs"
+                       ng-hide="entity.isMarketable == '1'">修改</a>
+                    <button class="btn  btn-xs btn-primary" ng-show="entity.isMarketable == '0'"
+                            ng-click="selectOperation(1);selectIdsByButton.push(entity.id);updateIsMarketableStatus('1')">上架
+                    </button>
+                    <button class="btn  btn-xs btn-primary" ng-show="entity.isMarketable == '1'"
+                            ng-click="selectOperation(1);selectIdsByButton.push(entity.id);updateIsMarketableStatus('0')">下架
+                    </button>
                 </td>
             </tr>
             </tbody>

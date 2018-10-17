@@ -65,7 +65,7 @@ public class GoodsServiceImpl implements GoodsService {
     @Override
     public void add(GoodsAndGoodsDescAndItems goodsAndGoodsDescAndItems) {
         TbGoods goods = goodsAndGoodsDescAndItems.getGoods();
-        goods.setAuditStatus("0");
+        goods.setAuditStatus("0");//初始化审核状态:"未审核"
         goodsMapper.insert(goods);
 
         TbGoodsDesc goodsDesc = goodsAndGoodsDescAndItems.getGoodsDesc();
@@ -107,6 +107,7 @@ public class GoodsServiceImpl implements GoodsService {
     public void update(GoodsAndGoodsDescAndItems goodsAndGoodsDescAndItems) {
         TbGoods goods = goodsAndGoodsDescAndItems.getGoods();
         goods.setAuditStatus("0");//商品跟新后需重新审核
+        goods.setIsMarketable(null);//商品跟新后在审核通过前无法执行上下架操作
         goodsMapper.updateByPrimaryKey(goods);
 
         TbGoodsDesc goodsDesc = goodsAndGoodsDescAndItems.getGoodsDesc();
@@ -234,8 +235,25 @@ public class GoodsServiceImpl implements GoodsService {
     @Override
     public void updateAuditStatus(TbGoods goods) {
         TbGoods tbGoods = goodsMapper.selectByPrimaryKey(goods.getId());
-        tbGoods.setAuditStatus(goods.getAuditStatus());
+        String auditStatus = goods.getAuditStatus();
+        //跟新审核状态值
+        tbGoods.setAuditStatus(auditStatus);
+        //根据审核状态的不同来初始化商品的可上下架状态
+        if ("1".equals(auditStatus)){
+            //通过审核,可以执行上下架操作(null为不可执行上下架操作,"0"为可执行但为下架状态)
+            tbGoods.setIsMarketable("0");
+        }
         goodsMapper.updateByPrimaryKey(tbGoods);
+    }
+
+    @Override
+    public void updateIsMarketableStatus(Long[] ids, String status) {
+        for (Long id: ids) {
+            TbGoods goods = goodsMapper.selectByPrimaryKey(id);
+            goods.setIsMarketable(status);
+            goodsMapper.updateByPrimaryKey(goods);
+        }
+
     }
 
 

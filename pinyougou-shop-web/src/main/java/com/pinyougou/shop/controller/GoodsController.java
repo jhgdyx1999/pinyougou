@@ -132,4 +132,24 @@ public class GoodsController {
         return goodsService.findPage(goods, page, rows);
     }
 
+
+    @RequestMapping("/updateIsMarketableStatus")
+    public Result updateIsMarketableStatus(Long[] ids,String status){
+        try {
+            for (Long id:ids ) {
+                GoodsAndGoodsDescAndItems goodsAndGoodsDescAndItems = goodsService.findOne(id);
+                if (!"1".equals(goodsAndGoodsDescAndItems.getGoods().getAuditStatus())){
+                    return new Result(false, "审核未通过的商品无法上下架");
+                }
+            }
+            goodsService.updateIsMarketableStatus(ids, status);
+            return new Result(true, "操作成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(false, "操作失败");
+        }
+
+
+    }
+
 }

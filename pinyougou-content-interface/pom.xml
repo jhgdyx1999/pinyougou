@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>pinyougou-sellergoods-interface</artifactId>
+    <artifactId>pinyougou-content-interface</artifactId>
 
     <dependencies>
         <dependency>
@@ -22,6 +22,5 @@
             <artifactId>pagehelper</artifactId>
         </dependency>
     </dependencies>
-
 
 </project>

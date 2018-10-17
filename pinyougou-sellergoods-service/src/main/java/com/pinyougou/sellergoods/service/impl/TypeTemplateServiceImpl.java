@@ -16,6 +16,7 @@ import com.pinyougou.pojo.TbTypeTemplate;
 import com.pinyougou.pojo.TbTypeTemplateExample;
 import com.pinyougou.pojo.TbTypeTemplateExample.Criteria;
 import com.pinyougou.sellergoods.service.TypeTemplateService;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
@@ -26,6 +27,7 @@ import javax.annotation.Resource;
  * @author Administrator
  */
 @Service
+@Transactional
 public class TypeTemplateServiceImpl implements TypeTemplateService {
 
     @Resource
@@ -127,7 +129,7 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
         TbTypeTemplate typeTemplate = typeTemplateMapper.selectByPrimaryKey(id);
         List<Map> list = JSON.parseArray(typeTemplate.getSpecIds(), Map.class);
 
-        for (Map map:list){
+        for (Map map : list) {
             TbSpecificationOptionExample specificationOptionExample = new TbSpecificationOptionExample();
             TbSpecificationOptionExample.Criteria criteria = specificationOptionExample.createCriteria();
             criteria.andSpecIdEqualTo(new Long(map.get("id").toString()));

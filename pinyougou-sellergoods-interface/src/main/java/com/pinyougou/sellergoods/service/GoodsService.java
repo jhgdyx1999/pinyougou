@@ -69,4 +69,6 @@ public interface GoodsService {
 
     public void updateAuditStatus(TbGoods goods);
 
+    public void updateIsMarketableStatus(Long[] ids,String status);
+
 }
