@@ -1,10 +1,10 @@
 package com.pinyougou.content.service.impl;
 
+import java.util.HashSet;
 import java.util.List;
 
 import com.pinyougou.content.service.ContentService;
 import com.pinyougou.entity.PageResult;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -12,6 +12,9 @@ import com.pinyougou.mapper.TbContentMapper;
 import com.pinyougou.pojo.TbContent;
 import com.pinyougou.pojo.TbContentExample;
 import com.pinyougou.pojo.TbContentExample.Criteria;
+import org.springframework.data.redis.core.RedisTemplate;
+
+import javax.annotation.Resource;
 
 
 /**
@@ -22,8 +25,11 @@ import com.pinyougou.pojo.TbContentExample.Criteria;
 @Service
 public class ContentServiceImpl implements ContentService {
 
-    @Autowired
+    @Resource
     private TbContentMapper contentMapper;
+
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     /**
      * 查询全部
@@ -40,7 +46,7 @@ public class ContentServiceImpl implements ContentService {
     public PageResult findPage(int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
         Page<TbContent> page = (Page<TbContent>) contentMapper.selectByExample(null);
-        return new PageResult(page.getTotal(), page.getResult());
+        return new PageResult<>(page.getTotal(), page.getResult());
     }
 
     /**
@@ -48,6 +54,7 @@ public class ContentServiceImpl implements ContentService {
      */
     @Override
     public void add(TbContent content) {
+        redisTemplate.boundHashOps("content").delete(content.getCategoryId());
         contentMapper.insert(content);
     }
 
@@ -57,6 +64,12 @@ public class ContentServiceImpl implements ContentService {
      */
     @Override
     public void update(TbContent content) {
+        Long oldCategoryId = contentMapper.selectByPrimaryKey(content.getId()).getCategoryId();
+        Long newCategoryId = content.getCategoryId();
+        if (!oldCategoryId.equals(newCategoryId)){
+            redisTemplate.boundHashOps("content").delete(newCategoryId);
+        }
+        redisTemplate.boundHashOps("content").delete(oldCategoryId);
         contentMapper.updateByPrimaryKey(content);
     }
 
@@ -77,8 +90,10 @@ public class ContentServiceImpl implements ContentService {
     @Override
     public void delete(Long[] ids) {
         for (Long id : ids) {
+            redisTemplate.boundHashOps("content").delete(id);
             contentMapper.deleteByPrimaryKey(id);
         }
+
     }
 
 
@@ -109,11 +124,18 @@ public class ContentServiceImpl implements ContentService {
         return new PageResult<>(page.getTotal(), page.getResult());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public List<TbContent> selectContentListByCategoryId(Long categoryId) {
-        TbContentExample contentExample = new TbContentExample();
-        contentExample.createCriteria().andCategoryIdEqualTo(categoryId).andStatusEqualTo("1");
-        return contentMapper.selectByExample(contentExample);
+    public
+    List<TbContent> selectContentListByCategoryId(Long categoryId) {
+        List<TbContent> contentList = (List<TbContent>) redisTemplate.boundHashOps("content").get(categoryId);
+        if (contentList == null){
+            TbContentExample contentExample = new TbContentExample();
+            contentExample.createCriteria().andCategoryIdEqualTo(categoryId).andStatusEqualTo("1");
+            contentList = contentMapper.selectByExample(contentExample);
+            redisTemplate.boundHashOps("content").put(categoryId, contentList);
+        }
+        return contentList;
 
     }
 }
