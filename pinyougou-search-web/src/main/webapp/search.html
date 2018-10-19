@@ -9,10 +9,8 @@
     <link rel="stylesheet" type="text/css" href="css/webbase.css"/>
     <link rel="stylesheet" type="text/css" href="css/pages-list.css"/>
     <link rel="stylesheet" type="text/css" href="css/widget-cartPanelView.css"/>
-    <link rel="stylesheet" href="plugins/angularjs/pagination.css">
     <script src="plugins/angularjs/angular.min.js"></script>
-    <script src="plugins/angularjs/pagination.js"></script>
-    <script src="js/base/base_pagination.js"></script>
+    <script src="js/base/base.js"></script>
     <script src="js/service/searchService.js"></script>
     <script src="js/base/baseController.js"></script>
     <script src="js/controller/searchController.js"></script>
@@ -81,8 +79,10 @@
                             <form action="" class="sui-form form-inline">
                                 <!--searchAutoComplete-->
                                 <div class="input-append">
-                                    <input type="text" id="autocomplete" type="text" class="input-error input-xxlarge" ng-model="searchMap.keywords"/>
-                                    <button class="sui-btn btn-xlarge btn-danger" type="button" ng-click="search()">搜索</button>
+                                    <input type="text" id="autocomplete" type="text" class="input-error input-xxlarge"
+                                           ng-model="searchMap.keywords"/>
+                                    <button class="sui-btn btn-xlarge btn-danger" type="button" ng-click="search()">搜索
+                                    </button>
                                 </div>
                             </form>
                         </div>
@@ -167,10 +167,10 @@
         </div>
         <!--selector-->
         <div class="clearfix selector">
-            <div class="type-wrap">
+            <div class="type-wrap" ng-if="searchResult.categoryList != null">
                 <div class="fl key">商品分类</div>
                 <div class="fl value">
-                    <a href="#">手机</a> <a href="#">电视</a>
+                    <a href="#" ng-repeat="category in searchResult.categoryList">{{category}}&nbsp;&nbsp;</a>
                 </div>
                 <div class="fl ext"></div>
             </div>
@@ -355,7 +355,7 @@
             </div>
             <div class="goods-list">
                 <ul class="yui3-g">
-                    <li class="yui3-u-1-5" ng-repeat="item in itemList">
+                    <li class="yui3-u-1-5" ng-repeat="item in searchResult.rows">
                         <div class="list-wrap">
                             <div class="p-img">
                                 <a href="item.html" target="_blank"><img src="{{item.image}}"/></a>
@@ -366,8 +366,7 @@
                                     <i>{{item.price}}</i>
                                 </strong>
                             </div>
-                            <div class="attr">
-                                <em>{{item.title}}</em>
+                            <div class="attr" ng-bind-html="item.title | trustAsHtml">
                             </div>
                             <div class="cu">
                                 <em></em>

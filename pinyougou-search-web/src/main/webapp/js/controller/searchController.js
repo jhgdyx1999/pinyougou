@@ -6,7 +6,7 @@ app.controller("searchController",function ($scope,$http,$controller,searchServi
 
     $scope.search = function () {
         searchService.search($scope.searchMap).success(function (response) {
-            $scope.itemList = response.rows;
+            $scope.searchResult = response;
         });
     }
 });

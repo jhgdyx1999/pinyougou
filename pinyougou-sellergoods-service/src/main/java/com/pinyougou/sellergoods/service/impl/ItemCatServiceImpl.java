@@ -12,6 +12,7 @@ import com.pinyougou.pojo.TbItemCat;
 import com.pinyougou.pojo.TbItemCatExample;
 import com.pinyougou.pojo.TbItemCatExample.Criteria;
 import com.pinyougou.sellergoods.service.ItemCatService;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
@@ -28,6 +29,8 @@ public class ItemCatServiceImpl implements ItemCatService {
 
     @Resource
     private TbItemCatMapper itemCatMapper;
+    @Resource
+    private RedisTemplate<String,Object> redisTemplate;
 
     /**
      * 查询全部
@@ -121,7 +124,20 @@ public class ItemCatServiceImpl implements ItemCatService {
         TbItemCatExample tbItemCatExample = new TbItemCatExample();
         Criteria criteria = tbItemCatExample.createCriteria();
         criteria.andParentIdEqualTo(parentId);
+        //缓存商品分类名称与模板id
+        saveToRedis();
         return itemCatMapper.selectByExample(tbItemCatExample);
+    }
+
+    /**
+     * 缓存商品分类名称与模板id
+     */
+    public void saveToRedis(){
+        List<TbItemCat> itemCatList = findAll();
+        for (TbItemCat itemCat : itemCatList){
+            redisTemplate.boundHashOps("typeIdList").put(itemCat.getName(),itemCat.getTypeId());
+        }
+        System.out.println("将模板Id放入缓存...");
     }
 
 }

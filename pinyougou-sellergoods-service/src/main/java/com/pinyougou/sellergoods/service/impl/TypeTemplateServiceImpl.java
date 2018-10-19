@@ -16,6 +16,7 @@ import com.pinyougou.pojo.TbTypeTemplate;
 import com.pinyougou.pojo.TbTypeTemplateExample;
 import com.pinyougou.pojo.TbTypeTemplateExample.Criteria;
 import com.pinyougou.sellergoods.service.TypeTemplateService;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
@@ -34,6 +35,8 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
     private TbTypeTemplateMapper typeTemplateMapper;
     @Resource
     private TbSpecificationOptionMapper specificationOptionMapper;
+    @Resource
+    private RedisTemplate<String,Object> redisTemplate;
 
     /**
      * 查询全部
@@ -50,9 +53,24 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
     public PageResult findPage(int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
         Page<TbTypeTemplate> page = (Page<TbTypeTemplate>) typeTemplateMapper.selectByExample(null);
+
         return new PageResult<>(page.getTotal(), page.getResult());
     }
 
+    public void saveToRedis(){
+        List<TbTypeTemplate> typeTemplateList = findAll();
+        for(TbTypeTemplate typeTemplate : typeTemplateList){
+            //缓存品牌名称
+            List<Map> brandMap = JSON.parseArray(typeTemplate.getBrandIds(), Map.class);
+            redisTemplate.boundHashOps("brandList").put(typeTemplate.getId(), brandMap);
+            //缓存规格
+            List<Map> specOptions = selectSpecificationListWithOptions(typeTemplate.getId());
+            redisTemplate.boundHashOps("specList").put(typeTemplate.getId(), specOptions);
+        }
+        System.out.println("缓存品牌与规格...");
+
+
+    }
     /**
      * 增加
      */
@@ -114,8 +132,9 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
             }
 
         }
-
         Page<TbTypeTemplate> page = (Page<TbTypeTemplate>) typeTemplateMapper.selectByExample(example);
+        //缓存品牌与规格
+        saveToRedis();
         return new PageResult<>(page.getTotal(), page.getResult());
     }
 
