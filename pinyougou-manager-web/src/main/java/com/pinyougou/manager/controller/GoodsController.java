@@ -5,6 +5,8 @@ import com.pinyougou.compositeEntity.GoodsAndGoodsDescAndItems;
 import com.pinyougou.entity.PageResult;
 import com.pinyougou.entity.Result;
 import com.pinyougou.pojo.TbGoods;
+import com.pinyougou.pojo.TbItem;
+import com.pinyougou.search.service.ItemSearchService;
 import com.pinyougou.sellergoods.service.GoodsService;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +26,8 @@ public class GoodsController {
 
     @Reference
     private GoodsService goodsService;
-
+    @Reference
+    private ItemSearchService itemSearchService;
     /**
      * 返回全部列表
      *
@@ -108,6 +111,11 @@ public class GoodsController {
     public Result updateAuditStatus(@RequestBody TbGoods goods) {
         try {
             goodsService.updateAuditStatus(goods);
+
+//            if ("1".equals(goods.getAuditStatus())){
+//                List<TbItem> items = goodsService.selectByGoodsIdAndStatus(goods.getId(), goods.getAuditStatus());
+//                itemSearchService.updateItems(items);
+//            }
             return new Result(true, "执行成功");
         } catch (Exception e) {
             e.printStackTrace();
@@ -119,6 +127,8 @@ public class GoodsController {
         Result result;
         try {
             goodsService.delete(ids);
+            itemSearchService.deleteByGoodsIds(ids);
+
             result = new Result(true,"删除成功!");
         } catch (Exception e) {
             e.printStackTrace();

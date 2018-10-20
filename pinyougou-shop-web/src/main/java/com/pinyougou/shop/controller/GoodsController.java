@@ -5,6 +5,8 @@ import com.pinyougou.compositeEntity.GoodsAndGoodsDescAndItems;
 import com.pinyougou.entity.PageResult;
 import com.pinyougou.entity.Result;
 import com.pinyougou.pojo.TbGoods;
+import com.pinyougou.pojo.TbItem;
+import com.pinyougou.search.service.ItemSearchService;
 import com.pinyougou.sellergoods.service.GoodsService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +27,8 @@ public class GoodsController {
 
     @Reference
     private GoodsService goodsService;
+    @Reference
+    private ItemSearchService itemSearchService;
 
     /**
      * 返回全部列表
@@ -78,7 +82,7 @@ public class GoodsController {
         GoodsAndGoodsDescAndItems targetGoodsAndGoodsDescAndItems = goodsService.findOne(goodsAndGoodsDescAndItems.getGoods().getId());
         String targetSellerId = targetGoodsAndGoodsDescAndItems.getGoods().getSellerId();
         //如果待修改的商品不属于当前商家,或者当前提交的sellerId与登录的用户不符合,则为"非法操作"
-        if (!sellerId.equals(targetSellerId) || !sellerId.equals(goodsAndGoodsDescAndItems.getGoods().getSellerId())){
+        if (!sellerId.equals(targetSellerId) || !sellerId.equals(goodsAndGoodsDescAndItems.getGoods().getSellerId())) {
             return new Result(false, "非法操作");
         }
         try {
@@ -111,6 +115,7 @@ public class GoodsController {
     public Result delete(Long[] ids) {
         try {
             goodsService.delete(ids);
+            itemSearchService.deleteByGoodsIds(ids);
             return new Result(true, "删除成功");
         } catch (Exception e) {
             e.printStackTrace();
@@ -134,15 +139,25 @@ public class GoodsController {
 
 
     @RequestMapping("/updateIsMarketableStatus")
-    public Result updateIsMarketableStatus(Long[] ids,String status){
+    public Result updateIsMarketableStatus(Long[] ids, String status) {
         try {
-            for (Long id:ids ) {
+            for (Long id : ids) {
                 GoodsAndGoodsDescAndItems goodsAndGoodsDescAndItems = goodsService.findOne(id);
-                if (!"1".equals(goodsAndGoodsDescAndItems.getGoods().getAuditStatus())){
+                if (!"1".equals(goodsAndGoodsDescAndItems.getGoods().getAuditStatus())) {
                     return new Result(false, "审核未通过的商品无法上下架");
                 }
             }
             goodsService.updateIsMarketableStatus(ids, status);
+            //执行的是上架操作
+            if ("1".equals(status)) {
+                for (Long id : ids) {
+
+
+                    List<TbItem> items = goodsService.selectByGoodsIdAndStatus(id);
+                    itemSearchService.updateItems(items);
+                }
+            }
+
             return new Result(true, "操作成功");
         } catch (Exception e) {
             e.printStackTrace();

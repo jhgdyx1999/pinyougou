@@ -2,6 +2,7 @@
   <dictionary name="Administrator">
     <words>
       <w>alibaba</w>
+      <w>andstatus</w>
       <w>angularjs</w>
       <w>bcrypt</w>
       <w>categoryid</w>
@@ -21,6 +22,7 @@
       <w>shoplogin</w>
       <w>snipplets</w>
       <w>springmvc</w>
+      <w>updatetime</w>
       <w>xfat</w>
     </words>
   </dictionary>

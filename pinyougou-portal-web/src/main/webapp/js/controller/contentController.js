@@ -9,5 +9,10 @@ app.controller("contentController",function ($scope,$http,$controller,contentSer
         contentService.selectContentListByCategoryId(categoryId).success(function (response) {
             $scope.contentList[categoryId] = response;
         });
+    };
+    //跳转至搜索列表页面
+    $scope.keywords = null;
+    $scope.searchItem  = function () {
+        location.href = "http://localhost:9104/search.html#?keywords="+$scope.keywords;
     }
 });

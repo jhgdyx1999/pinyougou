@@ -48,10 +48,16 @@ public class ImportDataUtil {
 
     }
 
+    private void deleteById(String id){
+        solrTemplate.deleteById(id);
+        solrTemplate.commit();
+    }
+
     public static void main(String[] args) {
         ApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath*:spring/applicationContext*.xml");
         ImportDataUtil importDataUtil = (ImportDataUtil) applicationContext.getBean("importDataUtil");
-        importDataUtil.importItemData();
+//        importDataUtil.importItemData();
 //        importDataUtil.deleteAllItem();
+        importDataUtil.deleteById("1369306");
     }
 }

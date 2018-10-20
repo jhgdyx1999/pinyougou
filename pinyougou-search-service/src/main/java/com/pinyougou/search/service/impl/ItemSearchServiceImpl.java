@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.pinyougou.pojo.TbItem;
 import com.pinyougou.search.service.ItemSearchService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.query.*;
@@ -49,9 +50,23 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         }
         resultMap.putAll(itemListMap);
         resultMap.putAll(categoryListMap);
-
         return resultMap;
     }
+
+    @Override
+    public void updateItems(List<TbItem> items) {
+        solrTemplate.saveBeans(items);
+        solrTemplate.commit();
+    }
+
+    @Override
+    public void deleteByGoodsIds(Long[] ids) {
+        SolrDataQuery solrDataQuery = new SimpleQuery("*:*");
+        solrDataQuery.addCriteria(new Criteria("item_goodsid").in(Arrays.asList(ids)));
+        solrTemplate.delete(solrDataQuery);
+        solrTemplate.commit();
+    }
+
     /**
      * 查询品牌列表
      */
@@ -80,7 +95,7 @@ public class ItemSearchServiceImpl implements ItemSearchService {
      * @param searchMap
      * @return
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "ConstantConditions"})
     private Map<String,Object> searchItemList(Map searchMap){
         Map<String, Object> itemListMap = new HashMap<>();
         //创建高亮查询对象
@@ -89,9 +104,11 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         HighlightOptions highlightOptions = new HighlightOptions()
                 .addField("item_title").setSimplePrefix("<span style='color:red'>").setSimplePostfix("</span>");
         query.setHighlightOptions(highlightOptions);
-        /**
+        /*
          *  设置查询条件
          */
+        //多关键字查询初始化
+        searchMap.put("keywords", (searchMap.get("keywords")+"").replace(" ", "")) ;
         //根据关键字查询
         Criteria criteria = new Criteria("item_keywords").is(searchMap.get("keywords"));
         query.addCriteria(criteria);
@@ -113,7 +130,46 @@ public class ItemSearchServiceImpl implements ItemSearchService {
                 query.addFilterQuery(filterQuery);
             }
         }
+        //根据价格区间查询
+        if(searchMap.get("price") != null){
+            String price = (String) searchMap.get("price");
+            String start = price.split("-")[0];
+            String end = price.split("-")[1];
+            FilterQuery filterQuery = new SimpleFilterQuery();
+            if (!"0".equals(start)){
+                filterQuery.addCriteria(new Criteria("item_price").greaterThanEqual(start));
+            }
+            if (!"max".equals(end)){
+                filterQuery.addCriteria(new Criteria("item_price").lessThanEqual(end));
+            }
+            query.addFilterQuery(filterQuery);
+        }
+        //分页查询
+        Integer pageNum = Integer.parseInt(searchMap.get("pageNum")+"") ;
+        Integer pageSize = Integer.parseInt( searchMap.get("pageSize")+"");
+        if (pageNum == null){
+            pageNum = 1;
+        }
+        if (pageSize == null){
+            pageSize = 30;
+        }
+        query.setOffset((pageNum-1)*pageSize);
+        query.setRows(pageSize);
 
+        //排序
+        String sort = (String) searchMap.get("sort");
+        String sortField = (String) searchMap.get("sortField");
+        if (sortField != null && !sortField.trim().equals("")){
+            if ("DESC".equals(sort)){
+                Sort orders = new Sort(Sort.Direction.DESC,"item_"+sortField);
+                query.addSort(orders);
+            }else{
+                Sort orders = new Sort(Sort.DEFAULT_DIRECTION,"item_"+sortField);
+                query.addSort(orders);
+            }
+        }
+
+        //*****************************    查询结果   *****************************
         //获取高亮页面对象
         HighlightPage<TbItem> highlightPage = solrTemplate.queryForHighlightPage(query, TbItem.class);
 
@@ -133,7 +189,8 @@ public class ItemSearchServiceImpl implements ItemSearchService {
             }
         }
         itemListMap.put("rows", highlightPage.getContent());
-
+        itemListMap.put("totalPages", highlightPage.getTotalPages());
+        itemListMap.put("totalCount", highlightPage.getTotalElements());
         return itemListMap;
     }
 
@@ -160,7 +217,6 @@ public class ItemSearchServiceImpl implements ItemSearchService {
             //获取每一个分类信息
             categoryList.add(groupEntry.getGroupValue());
         }
-        System.out.println(categoryList);
         categoryListMap.put("categoryList", categoryList);
 
         return categoryListMap;

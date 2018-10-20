@@ -76,7 +76,7 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
 
-    public void setCommonProperties(TbItem item,TbGoods goods,TbGoodsDesc goodsDesc){
+    public void setCommonProperties(TbItem item, TbGoods goods, TbGoodsDesc goodsDesc) {
         //查询商家
         String sellerId = goods.getSellerId();
         TbSeller seller = sellerMapper.selectByPrimaryKey(sellerId);
@@ -85,7 +85,7 @@ public class GoodsServiceImpl implements GoodsService {
         item.setSeller(seller.getNickName());//商家店铺名
         //商品图片
         List<Map> itemImagesList = JSON.parseArray(goodsDesc.getItemImages(), Map.class);
-        if (itemImagesList != null && itemImagesList.size() != 0){
+        if (itemImagesList != null && itemImagesList.size() != 0) {
             item.setImage(itemImagesList.get(0).get("url").toString());
         }
         //分类信息
@@ -122,26 +122,26 @@ public class GoodsServiceImpl implements GoodsService {
 
     }
 
-    private void saveItems(GoodsAndGoodsDescAndItems goodsAndGoodsDescAndItems){
+    private void saveItems(GoodsAndGoodsDescAndItems goodsAndGoodsDescAndItems) {
         TbGoods goods = goodsAndGoodsDescAndItems.getGoods();
         TbGoodsDesc goodsDesc = goodsAndGoodsDescAndItems.getGoodsDesc();
         //判定是否启用规格
-        if ("1".equals(goods.getIsEnableSpec())){
+        if ("1".equals(goods.getIsEnableSpec())) {
             List<TbItem> itemList = goodsAndGoodsDescAndItems.getItemList();
-            for (TbItem item:itemList){
+            for (TbItem item : itemList) {
                 //生商品名
                 Map specMap = (Map) JSON.parse(item.getSpec());
                 StringBuilder titleBuilder = new StringBuilder(goods.getGoodsName());
-                for (Object key:specMap.keySet()){
+                for (Object key : specMap.keySet()) {
                     titleBuilder.append(" ");
                     titleBuilder.append(specMap.get(key));
                 }
                 String title = titleBuilder.toString();
                 item.setTitle(title);
-                setCommonProperties(item,goods,goodsDesc);
+                setCommonProperties(item, goods, goodsDesc);
                 itemMapper.insert(item);
             }
-        }else {
+        } else {
             TbItem item = new TbItem();
             item.setTitle(goods.getGoodsName());
             item.setPrice(goods.getPrice());
@@ -149,7 +149,8 @@ public class GoodsServiceImpl implements GoodsService {
             item.setStatus("1");
             item.setIsDefault("1");
             item.setSpec("{}");
-            setCommonProperties(item,goods,goodsDesc);
+            setCommonProperties(item, goods, goodsDesc);
+
             itemMapper.insert(item);
         }
     }
@@ -202,7 +203,7 @@ public class GoodsServiceImpl implements GoodsService {
 
         if (goods != null) {
             if (goods.getSellerId() != null && goods.getSellerId().length() > 0) {
-                criteria.andSellerIdEqualTo( goods.getSellerId() );
+                criteria.andSellerIdEqualTo(goods.getSellerId());
             }
             if (goods.getGoodsName() != null && goods.getGoodsName().length() > 0) {
                 criteria.andGoodsNameLike("%" + goods.getGoodsName() + "%");
@@ -239,7 +240,7 @@ public class GoodsServiceImpl implements GoodsService {
         //跟新审核状态值
         tbGoods.setAuditStatus(auditStatus);
         //根据审核状态的不同来初始化商品的可上下架状态
-        if ("1".equals(auditStatus)){
+        if ("1".equals(auditStatus)) {
             //通过审核,可以执行上下架操作(null为不可执行上下架操作,"0"为可执行但为下架状态)
             tbGoods.setIsMarketable("0");
         }
@@ -248,12 +249,19 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     public void updateIsMarketableStatus(Long[] ids, String status) {
-        for (Long id: ids) {
+        for (Long id : ids) {
             TbGoods goods = goodsMapper.selectByPrimaryKey(id);
             goods.setIsMarketable(status);
             goodsMapper.updateByPrimaryKey(goods);
         }
 
+    }
+
+    @Override
+    public List<TbItem> selectByGoodsIdAndStatus(Long id) {
+        TbItemExample itemExample = new TbItemExample();
+        itemExample.createCriteria().andGoodsIdEqualTo(id);
+        return itemMapper.selectByExample(itemExample);
     }
 
 

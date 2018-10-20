@@ -5,6 +5,7 @@ import java.util.List;
 import com.pinyougou.compositeEntity.GoodsAndGoodsDescAndItems;
 import com.pinyougou.entity.PageResult;
 import com.pinyougou.pojo.TbGoods;
+import com.pinyougou.pojo.TbItem;
 
 /**
  * 服务层接口
@@ -70,5 +71,7 @@ public interface GoodsService {
     public void updateAuditStatus(TbGoods goods);
 
     public void updateIsMarketableStatus(Long[] ids,String status);
+
+    public List<TbItem> selectByGoodsIdAndStatus(Long id);
 
 }
