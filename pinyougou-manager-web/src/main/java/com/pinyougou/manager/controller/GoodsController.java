@@ -4,8 +4,8 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.pinyougou.compositeEntity.GoodsAndGoodsDescAndItems;
 import com.pinyougou.entity.PageResult;
 import com.pinyougou.entity.Result;
+import com.pinyougou.page.service.ItemPageService;
 import com.pinyougou.pojo.TbGoods;
-import com.pinyougou.pojo.TbItem;
 import com.pinyougou.search.service.ItemSearchService;
 import com.pinyougou.sellergoods.service.GoodsService;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,6 +28,9 @@ public class GoodsController {
     private GoodsService goodsService;
     @Reference
     private ItemSearchService itemSearchService;
+    @Reference
+    private ItemPageService itemPageService;
+
     /**
      * 返回全部列表
      *
@@ -111,11 +114,8 @@ public class GoodsController {
     public Result updateAuditStatus(@RequestBody TbGoods goods) {
         try {
             goodsService.updateAuditStatus(goods);
-
-//            if ("1".equals(goods.getAuditStatus())){
-//                List<TbItem> items = goodsService.selectByGoodsIdAndStatus(goods.getId(), goods.getAuditStatus());
-//                itemSearchService.updateItems(items);
-//            }
+            //生成静态商品详情页面
+            itemPageService.generateItemHtml(goods.getId());
             return new Result(true, "执行成功");
         } catch (Exception e) {
             e.printStackTrace();

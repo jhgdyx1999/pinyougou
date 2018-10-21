@@ -243,6 +243,8 @@ public class GoodsServiceImpl implements GoodsService {
         if ("1".equals(auditStatus)) {
             //通过审核,可以执行上下架操作(null为不可执行上下架操作,"0"为可执行但为下架状态)
             tbGoods.setIsMarketable("0");
+            //生成静态商品详情页面
+
         }
         goodsMapper.updateByPrimaryKey(tbGoods);
     }
