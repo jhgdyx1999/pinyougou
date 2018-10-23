@@ -1,6 +1,5 @@
 package com.pinyougou.page.service.impl;
 
-import com.alibaba.dubbo.config.annotation.Service;
 import com.pinyougou.mapper.TbGoodsDescMapper;
 import com.pinyougou.mapper.TbGoodsMapper;
 import com.pinyougou.mapper.TbItemCatMapper;
@@ -13,7 +12,9 @@ import com.pinyougou.pojo.TbItemExample;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfig;
 
 import javax.annotation.Resource;
@@ -49,7 +50,7 @@ public class ItemPageServiceImpl implements ItemPageService {
 
     @Override
     public boolean generateItemHtml(Long id) {
-        Map<String,Object> dataModel = new HashMap<>();
+        Map<String, Object> dataModel = new HashMap<>();
         //获取商品
         TbGoods goods = goodsMapper.selectByPrimaryKey(id);
         //商品描述
@@ -75,7 +76,7 @@ public class ItemPageServiceImpl implements ItemPageService {
             dataModel.put("itemCat3Name", itemCat3Name);
             dataModel.put("itemList", itemList);
             //输出页面
-            Writer writer = new FileWriter(new File(itemPageDir+id+".html"));
+            Writer writer = new FileWriter(new File(itemPageDir + id + ".html"));
             template.process(dataModel, writer);
             writer.close();
         } catch (IOException | TemplateException e) {
@@ -84,5 +85,12 @@ public class ItemPageServiceImpl implements ItemPageService {
         }
 
         return true;
+    }
+
+    @Override
+    public void deleteItemHtml(Long[] ids) {
+        for (Long id : ids) {
+            FileUtils.deleteQuietly(new File(itemPageDir + id + ".html"));
+        }
     }
 }

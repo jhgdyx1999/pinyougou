@@ -8,4 +8,6 @@ package com.pinyougou.page.service;
 public interface ItemPageService {
 
     public boolean generateItemHtml(Long id);
+
+    public void deleteItemHtml(Long[] ids);
 }

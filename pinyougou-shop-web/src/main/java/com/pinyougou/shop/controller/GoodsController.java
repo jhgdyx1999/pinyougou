@@ -1,13 +1,14 @@
 package com.pinyougou.shop.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.alibaba.fastjson.JSON;
 import com.pinyougou.compositeEntity.GoodsAndGoodsDescAndItems;
 import com.pinyougou.entity.PageResult;
 import com.pinyougou.entity.Result;
 import com.pinyougou.pojo.TbGoods;
 import com.pinyougou.pojo.TbItem;
-import com.pinyougou.search.service.ItemSearchService;
 import com.pinyougou.sellergoods.service.GoodsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,8 +28,12 @@ public class GoodsController {
 
     @Reference
     private GoodsService goodsService;
-    @Reference
-    private ItemSearchService itemSearchService;
+    @Autowired
+    private ItemSearchProducer itemSearchProducer;
+    @Autowired
+    private ItemSearchDeleteProducer itemSearchDeleteProducer;
+    @Autowired
+    private ItemPageDeleteProducer itemPageDeleteProducer;
 
     /**
      * 返回全部列表
@@ -115,7 +120,8 @@ public class GoodsController {
     public Result delete(Long[] ids) {
         try {
             goodsService.delete(ids);
-            itemSearchService.deleteByGoodsIds(ids);
+            itemSearchDeleteProducer.send(ids);
+            itemPageDeleteProducer.send(ids);
             return new Result(true, "删除成功");
         } catch (Exception e) {
             e.printStackTrace();
@@ -151,10 +157,9 @@ public class GoodsController {
             //执行的是上架操作
             if ("1".equals(status)) {
                 for (Long id : ids) {
-
-
                     List<TbItem> items = goodsService.selectByGoodsIdAndStatus(id);
-                    itemSearchService.updateItems(items);
+//                    itemSearchService.updateItems(items);
+                    itemSearchProducer.send(JSON.toJSONString(items));
                 }
             }
 
