@@ -3,7 +3,34 @@ app.controller('userController', function ($scope, $controller, userService) {
 
     $controller('baseController', {$scope: $scope});//继承
 
-    //读取列表数据绑定到表单中  
+    $scope.entity = {};
+    $scope.repassword = null;
+    $scope.smsCode = null;
+
+    $scope.register = function () {
+        if ($scope.entity.password !== $scope.repassword) {
+            alert("两次输入密码不一致!");
+            return
+        }
+        userService.add($scope.entity,$scope.smsCode).success(function (response) {
+            alert(response.message);
+            $scope.entity = {};
+            $scope.repassword = null;
+            $scope.smsCode = null;
+        })
+    };
+    //发送手机验证码
+    $scope.createSmsCode = function () {
+        if ($scope.entity.phone == null || $scope.entity.phone === "") {
+            alert("请输入手机号!");
+            return;
+        }
+        userService.createSmsCode($scope.entity.phone).success(function (response) {
+            alert(response.message);
+        })
+    };
+
+    //读取列表数据绑定到表单中
     $scope.findAll = function () {
         userService.findAll().success(
             function (response) {

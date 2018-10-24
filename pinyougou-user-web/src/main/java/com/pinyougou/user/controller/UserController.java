@@ -2,6 +2,7 @@ package com.pinyougou.user.controller;
 
 import java.util.List;
 
+import com.pinyougou.common.util.PhoneFormatCheckUtils;
 import com.pinyougou.entity.PageResult;
 import com.pinyougou.entity.Result;
 import com.pinyougou.user.service.UserService;
@@ -52,13 +53,19 @@ public class UserController {
      * @return
      */
     @RequestMapping("/add")
-    public Result add(@RequestBody TbUser user) {
+    public Result add(@RequestBody TbUser user,String smsCode) {
         try {
+            //校验手机验证码
+            boolean isValidated = userService.checkSmsCode(user.getPhone(), smsCode);
+            if (!isValidated){
+                return new Result(false, "验证码错误!");
+            }
+            //校验通过
             userService.add(user);
-            return new Result(true, "增加成功");
+            return new Result(true, "注册成功");
         } catch (Exception e) {
             e.printStackTrace();
-            return new Result(false, "增加失败");
+            return new Result(false, "注册失败");
         }
     }
 
@@ -119,5 +126,27 @@ public class UserController {
     public PageResult search(@RequestBody TbUser user, int page, int rows) {
         return userService.findPage(user, page, rows);
     }
+
+    /**
+     * 生成验证码,发送短信
+     * @param phone
+     * @return
+     */
+    @RequestMapping("/createSmsCode")
+    public Result createSmsCode(String phone){
+        try {
+            if (!PhoneFormatCheckUtils.isPhoneLegal(phone)){
+                return new Result(false, "手机号码不正确!");
+            }
+            String smsCode = userService.createSmsCode(phone);
+            System.out.println("验证码:"+smsCode);
+            return new Result(true, "验证码发送成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(true, "验证码发送失败");
+        }
+    }
+
+
 
 }

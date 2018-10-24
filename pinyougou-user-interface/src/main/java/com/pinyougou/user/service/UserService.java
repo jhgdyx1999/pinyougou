@@ -65,4 +65,8 @@ public interface UserService {
      */
     public PageResult findPage(TbUser user, int pageNum, int pageSize);
 
+    public String createSmsCode(String phone);
+
+    public boolean checkSmsCode(String phone,String smsCode);
+
 }

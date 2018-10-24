@@ -1,10 +1,11 @@
 package com.pinyougou.user.service.impl;
 
-import java.util.List;
+import java.util.*;
 
+import com.alibaba.fastjson.JSON;
 import com.pinyougou.entity.PageResult;
 import com.pinyougou.user.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.codec.digest.DigestUtils;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -12,6 +13,14 @@ import com.pinyougou.mapper.TbUserMapper;
 import com.pinyougou.pojo.TbUser;
 import com.pinyougou.pojo.TbUserExample;
 import com.pinyougou.pojo.TbUserExample.Criteria;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.util.StringUtils;
+
+import javax.annotation.Resource;
+import javax.jms.Destination;
+import javax.jms.MapMessage;
 
 
 /**
@@ -22,8 +31,18 @@ import com.pinyougou.pojo.TbUserExample.Criteria;
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Autowired
+    @Resource
     private TbUserMapper userMapper;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
+    @Resource
+    private JmsTemplate jmsTemplate;
+    @Resource
+    private Destination queueSmsDestination;
+    @Value("${signName}")
+    private String signName;
+    @Value("${templateCode}")
+    private String templateCode;
 
     /**
      * 查询全部
@@ -48,6 +67,13 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void add(TbUser user) {
+
+        user.setPassword(DigestUtils.md5Hex(user.getPassword()));
+        user.setCreated(new Date());
+        user.setUpdated(new Date());
+        user.setSourceType("1");
+        user.setStatus("1");
+
         userMapper.insert(user);
     }
 
@@ -136,4 +162,33 @@ public class UserServiceImpl implements UserService {
         return new PageResult<>(page.getTotal(), page.getResult());
     }
 
+    @Override
+    public String createSmsCode(String phone) {
+        Random random = new Random();
+        String smsCode = random.nextInt(900000) + 100000 + "";
+        redisTemplate.boundHashOps("smsCode").put(phone, smsCode);
+        //将短信验证码等数据发送至消息队列
+        jmsTemplate.send(queueSmsDestination, session -> {
+            MapMessage mapMessage = session.createMapMessage();
+            mapMessage.setString("phoneNumbers", phone);
+            mapMessage.setString("signName", signName);
+            mapMessage.setString("templateCode", templateCode);
+
+            Map<String,Object> paramMap = new HashMap<>();
+            paramMap.put("smsCode", smsCode);
+
+            mapMessage.setString("templateParam", JSON.toJSONString(paramMap));
+            return mapMessage;
+        });
+
+        return smsCode;
+    }
+
+    @Override
+    public boolean checkSmsCode(String phone, String smsCode) {
+        String storedSmsCode = redisTemplate.boundHashOps("smsCode").get(phone)+"";
+        return !StringUtils.isEmpty(smsCode) && storedSmsCode.equals(smsCode);
+    }
+
 }
+
