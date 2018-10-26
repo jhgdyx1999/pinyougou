@@ -6,10 +6,10 @@ import com.pinyougou.common.util.CookieUtil;
 import com.pinyougou.compositeEntity.Cart;
 import com.pinyougou.entity.Result;
 import com.pinyougou.service.CartService;
-import org.opensaml.ws.wssecurity.Username;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,8 +34,8 @@ public class CartController {
     @Reference
     private CartService cartService;
 
-    @RequestMapping("/selectCartListFromCookie")
-    public List<Cart> selectCartListFromCookie() {
+    @RequestMapping("/selectCartList")
+    public List<Cart> selectCartList() {
         //anonymousUser
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         //从cookie中获取购物车信息
@@ -66,12 +66,15 @@ public class CartController {
 
 
     @RequestMapping("/addGoodsToCartList")
+    @CrossOrigin(origins = "http://localhost:9105",allowCredentials = "true")
     public Result addGoodsToCartList(Long itemId, Integer num) {
+//        response.setHeader("Access-Control-Allow-Origin", "http://localhost:9105");
+//        response.setHeader("Access-Control-Allow-Credentials", "true");
         try {
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
             if ("anonymousUser".equals(username)) {
                 //当前用户未登录,向cookie中存储信息
-                List<Cart> cartList = selectCartListFromCookie();
+                List<Cart> cartList = selectCartList();
                 cartList = cartService.addGoodsToCartList(cartList, itemId, num);
                 CookieUtil.setCookie(request, response, "cartList", JSON.toJSONString(cartList), 3600 * 24, "UTF-8");
             } else {

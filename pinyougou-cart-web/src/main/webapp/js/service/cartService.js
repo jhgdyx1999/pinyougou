@@ -1,7 +1,7 @@
 app.service('cartService', function ($http) {
     //购物车列表
-    this.selectCartListFromCookie = function () {
-        return $http.get('cart/selectCartListFromCookie.do');
+    this.selectCartList = function () {
+        return $http.get('cart/selectCartList.do');
     };
     //更改购物车商品数
     this.addGoodsToCartList = function (itemId, num) {
@@ -18,7 +18,18 @@ app.service('cartService', function ($http) {
             }
         }
     return total;
-    }
+    };
+    //查询用户地址列表
+    this.findAddressList = function () {
+        return $http.get("address/findAddressListByUsername.do");
+    };
 
+    this.addAddress = function (address) {
+        return $http.post("address/add.do",address);
+    };
+    //提交订单
+    this.submitOrder = function (order) {
+        return $http.post("order/add.do",order);
+    }
 
 });
