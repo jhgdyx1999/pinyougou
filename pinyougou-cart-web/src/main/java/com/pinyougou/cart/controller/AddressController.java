@@ -23,7 +23,7 @@ import com.pinyougou.pojo.TbAddress;
 @RequestMapping("/address")
 public class AddressController {
 
-    @Reference
+    @Reference(timeout = 10000)
     private AddressService addressService;
 
     /**

@@ -6,7 +6,6 @@
                     http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
     <http pattern="/cart.html" security="none"/>
-    <http pattern="/test.html" security="none"/>
 
     <http pattern="/css/**" security="none"/>
     <http pattern="img/**" security="none"/>

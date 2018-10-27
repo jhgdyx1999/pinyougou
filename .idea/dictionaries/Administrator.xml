@@ -4,6 +4,7 @@
       <w>alibaba</w>
       <w>andstatus</w>
       <w>angularjs</w>
+      <w>appid</w>
       <w>bcrypt</w>
       <w>categoryid</w>
       <w>dele</w>
@@ -15,6 +16,7 @@
       <w>icheckbox</w>
       <w>jedis</w>
       <w>lshoplogin</w>
+      <w>notifyurl</w>
       <w>pagehelper</w>
       <w>pinyougou</w>
       <w>repassword</w>
@@ -22,6 +24,7 @@
       <w>sellergoods</w>
       <w>shoplogin</w>
       <w>snipplets</w>
+      <w>spbill</w>
       <w>springmvc</w>
       <w>updatetime</w>
       <w>xfat</w>

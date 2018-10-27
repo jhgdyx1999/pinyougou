@@ -1,6 +1,7 @@
 package com.pinyougou.order.service.impl;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import com.pinyougou.common.util.IdWorker;
 import com.pinyougou.compositeEntity.Cart;
 import com.pinyougou.entity.PageResult;
 import com.pinyougou.mapper.TbOrderItemMapper;
+import com.pinyougou.mapper.TbPayLogMapper;
 import com.pinyougou.order.service.OrderService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -17,6 +19,8 @@ import com.pinyougou.pojo.TbOrder;
 import com.pinyougou.pojo.TbOrderExample;
 import com.pinyougou.pojo.TbOrderExample.Criteria;
 import com.pinyougou.pojo.TbOrderItem;
+import com.pinyougou.pojo.TbPayLog;
+import org.apache.commons.collections.OrderedMap;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +44,8 @@ public class OrderServiceImpl implements OrderService {
     private IdWorker idWorker;
     @Resource
     private TbOrderItemMapper orderItemMapper;
+    @Resource
+    private TbPayLogMapper payLogMapper;
 
     /**
      * 查询全部
@@ -67,10 +73,11 @@ public class OrderServiceImpl implements OrderService {
 //        String sellerId = order.getSellerId();
         String userId = order.getUserId();
         List<Cart> cartList = (List<Cart>) redisTemplate.boundHashOps("cartList").get(userId);
+        List<Long> orderIds = new ArrayList<>();
+        long totalFee = 0L;
         for (Cart cart : cartList){
             TbOrder tbOrder = new TbOrder();
             long orderId = idWorker.nextId();
-
             tbOrder.setOrderId(orderId);//订单id
             tbOrder.setPaymentType(order.getPaymentType());//付款类型
             tbOrder.setStatus("1");//订单状态("1"为未付款)
@@ -96,14 +103,28 @@ public class OrderServiceImpl implements OrderService {
                 orderItemMapper.insert(orderItem) ;
             }
             tbOrder.setPayment(payment);//实付金额
-
+            totalFee += payment.multiply(new BigDecimal(100)).longValue();
             orderMapper.insert(tbOrder);
-        }
 
+            orderIds.add(orderId);
+        }
         //清除redis数据
         redisTemplate.boundHashOps("cartList").delete(userId);
-    }
+        //生成支付日志
+        if ("1".equals(order.getPaymentType())){
+            TbPayLog payLog = new TbPayLog();
+            payLog.setOutTradeNo(idWorker.nextId()+"");
+            payLog.setCreateTime(new Date());
+            payLog.setTotalFee(totalFee);
+            payLog.setUserId(userId);
+            payLog.setTradeState("0");
+            payLog.setOrderList(orderIds.toString().replace("[", "").replace("]", ""));
+            payLog.setPayType("1");
 
+            payLogMapper.insert(payLog);
+            redisTemplate.boundHashOps("payLog").put(userId, payLog);
+        }
+    }
 
     /**
      * 修改
@@ -196,6 +217,34 @@ public class OrderServiceImpl implements OrderService {
 
         Page<TbOrder> page = (Page<TbOrder>) orderMapper.selectByExample(example);
         return new PageResult<>(page.getTotal(), page.getResult());
+    }
+
+    @Override
+    public TbPayLog getPayLogFromRedis(String userId) {
+        return (TbPayLog) redisTemplate.boundHashOps("payLog").get(userId);
+    }
+
+    @Override
+    public void updateOrderStatus(String out_trade_no, String transaction_id) {
+        TbPayLog payLog = payLogMapper.selectByPrimaryKey(out_trade_no);
+        payLog.setTradeState("1");//订单已支付
+        payLog.setPayTime(new Date());
+        payLog.setTransactionId(transaction_id);
+        payLogMapper.updateByPrimaryKey(payLog);
+
+        //更新订单状态
+        String[] orderIds = payLog.getOrderList().split(",");
+        for (String orderId : orderIds){
+            TbOrder order = orderMapper.selectByPrimaryKey(Long.valueOf(orderId));
+            order.setUpdateTime(new Date());
+            order.setStatus("2");//已付款
+            orderMapper.updateByPrimaryKey(order);
+        }
+
+        //清除redis内的支付日志
+        redisTemplate.boundHashOps("payLog").delete(payLog.getUserId());
+
+
     }
 
 }
