@@ -96,4 +96,28 @@ public class WeixinPayServiceImpl implements WeixinPayService {
             return null;
         }
     }
+
+    @Override
+    public Map<String, String> closePay(String out_trade_no) {
+        Map<String, String> map = new HashMap<>();
+        map.put("appid", appid);//公众账号ID
+        map.put("mch_id", mch_id);//商户号
+        map.put("out_trade_no", out_trade_no);//商户订单号
+        map.put("nonce_str", WXPayUtil.generateNonceStr());//随机字符串
+
+        try {
+            String signedXml = WXPayUtil.generateSignedXml(map, partnerkey);
+            HttpClient client = new HttpClient("https://api.mch.weixin.qq.com/pay/closeorder");
+            client.setHttps(true);
+            client.setXmlParam(signedXml);
+            client.post();
+            String xmlResponse = client.getContent();
+
+            //获取返回结果
+            return WXPayUtil.xmlToMap(xmlResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
